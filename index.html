@@ -520,10 +520,7 @@ button:disabled {
                 }
             });
 
-            let highCardVal = 0;
-            hand.forEach(c => {
-                if (rankValues[c.rank] > highCardVal) highCardVal = rankValues[c.rank];
-            });
+            let cardSumBonus = sumRanks;
 
             let maxSuitCount = Math.max(...Object.values(suitCounts));
             let uniqueRanks = Object.keys(rankCounts).length;
@@ -543,30 +540,30 @@ button:disabled {
                 }
             }
 
-            // Checks
+            // Updated Scores matching your table exactly:
             let isSevenFlush = (maxSuitCount === 7 && maxConsecutive >= 7);
-            if (isSevenFlush) matched["Seven Flush"] = { pts: 5000000, tier: "tier-divine" };
+            if (isSevenFlush) matched["Seven Flush"] = { pts: 3000000, tier: "tier-divine" };
             
             if (hand.every(c => ['J', 'Q', 'K'].includes(c.rank))) matched["Faces"] = { pts: 1000000, tier: "tier-mythic" };
-            if (uniqueRanks === 2) matched["Binary"] = { pts: 2000000, tier: "tier-mythic" };
-            if (sumRanks === 21 && !hand.some(c => c.rank === 'A')) matched["Blackjack"] = { pts: 1000000, tier: "tier-mythic" };
+            if (uniqueRanks === 2) matched["Binary"] = { pts: 600000, tier: "tier-mythic" };
+            if (sumRanks === 21 && !hand.some(c => c.rank === 'A')) matched["Blackjack"] = { pts: 400000, tier: "tier-mythic" };
 
             let hasRoyalRanks = ['10', 'J', 'Q', 'K', 'A'].every(r => rankCounts[r] > 0);
             let royalSuit = Object.keys(suitCounts).find(s => suitCounts[s] >= 5);
             let isRoyalFlush = (hasRoyalRanks && royalSuit && hand.filter(c => c.suit === royalSuit && ['10','J','Q','K','A'].includes(c.rank)).length >= 5);
             if (isRoyalFlush) matched["Royal Flush"] = { pts: 300000, tier: "tier-legendary" };
 
-            if (maxSuitCount === 7) matched["Unity"] = { pts: 300000, tier: "tier-legendary" };
-            if ((rankCounts['A'] || 0) >= 4) matched["Aces"] = { pts: 70000, tier: "tier-epic" };
+            if (maxSuitCount === 7) matched["Unity"] = { pts: 200000, tier: "tier-legendary" };
+            if ((rankCounts['A'] || 0) >= 4) matched["Aces"] = { pts: 50000, tier: "tier-epic" };
             if (maxConsecutive >= 5 && maxSuitCount >= 5) matched["Straight Flush"] = { pts: 30000, tier: "tier-epic" };
 
             const numberCards = hand.filter(c => /^([2-9]|10)$/.test(c.rank));
             const allEvens = numberCards.length === 7 && numberCards.every(c => Number(c.rank) % 2 === 0);
             const allOdds = numberCards.length === 7 && numberCards.every(c => Number(c.rank) % 2 !== 0);
-            if (allEvens || allOdds) matched["Evens / Odds"] = { pts: 15000, tier: "tier-epic" };
+            if (allEvens || allOdds) matched["Evens / Odds"] = { pts: 10000, tier: "tier-epic" };
 
             if (maxRankCount >= 4) matched["Four of a Kind"] = { pts: 5000, tier: "tier-rare" };
-            if (maxConsecutive >= 7) matched["Seven"] = { pts: 10000, tier: "tier-rare" };
+            if (maxConsecutive >= 7) matched["Seven"] = { pts: 5000, tier: "tier-rare" };
 
             let redCount = (suitCounts['♥'] || 0) + (suitCounts['♦'] || 0);
             let blackCount = (suitCounts['♠'] || 0) + (suitCounts['♣'] || 0);
@@ -574,25 +571,24 @@ button:disabled {
 
             if (pairCount >= 3) matched["Three Pair"] = { pts: 500, tier: "tier-uncommon" };
             
-            // Fixed Full House check (Strictly 3 of a kind + pair, excluding 4-of-a-kind)
             if (countsArray[0] === 3 && countsArray[1] >= 2) {
-                matched["Full House"] = { pts: 400, tier: "tier-uncommon" };
+                matched["Full House"] = { pts: 300, tier: "tier-uncommon" };
             }
 
             if (maxSuitCount >= 5) matched["Flush"] = { pts: 300, tier: "tier-uncommon" };
-            if (allNumeric) matched["Digits"] = { pts: 300, tier: "tier-uncommon" };
+            if (allNumeric) matched["Digits"] = { pts: 200, tier: "tier-uncommon" };
             if (maxConsecutive >= 5) matched["Straight"] = { pts: 200, tier: "tier-uncommon" };
             if (maxRankCount >= 3) matched["Three of a Kind"] = { pts: 200, tier: "tier-uncommon" };
 
-            if (uniqueRanks === 7) matched["Diversity"] = { pts: 40, tier: "tier-common" };
-            if ((countsArray[0] >= 2 && countsArray[1] >= 2) || countsArray[0] >= 4) matched["Two Pair"] = { pts: 30, tier: "tier-common" };
+            if (uniqueRanks === 7) matched["Diversity"] = { pts: 50, tier: "tier-common" };
+            if ((countsArray[0] >= 2 && countsArray[1] >= 2) || countsArray[0] >= 4) matched["Two Pair"] = { pts: 40, tier: "tier-common" };
             if (maxRankCount >= 2) matched["One Pair"] = { pts: 20, tier: "tier-common" };
 
             // Cascades
             if (isSevenFlush) {
-                matched["Unity"] = { pts: 300000, tier: "tier-legendary" };
+                matched["Unity"] = { pts: 200000, tier: "tier-legendary" };
                 matched["Straight Flush"] = { pts: 30000, tier: "tier-epic" };
-                matched["Seven"] = { pts: 10000, tier: "tier-rare" };
+                matched["Seven"] = { pts: 5000, tier: "tier-rare" };
                 matched["Flush"] = { pts: 300, tier: "tier-uncommon" };
                 matched["Straight"] = { pts: 200, tier: "tier-uncommon" };
                 if (hasRoyalRanks) matched["Royal Flush"] = { pts: 300000, tier: "tier-legendary" };
@@ -605,7 +601,7 @@ button:disabled {
             }
 
             if (matched["Three Pair"]) {
-                matched["Two Pair"] = { pts: 30, tier: "tier-common" };
+                matched["Two Pair"] = { pts: 40, tier: "tier-common" };
                 matched["One Pair"] = { pts: 20, tier: "tier-common" };
             }
 
@@ -615,7 +611,7 @@ button:disabled {
 
             if (matched["Four of a Kind"]) {
                 matched["Three of a Kind"] = { pts: 200, tier: "tier-uncommon" };
-                matched["Two Pair"] = { pts: 30, tier: "tier-common" };
+                matched["Two Pair"] = { pts: 40, tier: "tier-common" };
                 matched["One Pair"] = { pts: 20, tier: "tier-common" };
             }
 
@@ -651,13 +647,13 @@ button:disabled {
                     index++;
                     setTimeout(showNextBonus, 600); 
                 } else {
-                    targetScore += highCardVal;
+                    targetScore += cardSumBonus;
                     animateScoreToTarget();
 
                     let liHigh = document.createElement('li');
                     liHigh.style.color = "#888";
-                    liHigh.innerHTML = `High Card Bonus: +${highCardVal} pts`;
-                    liHigh.onclick = () => openModal("High Card Bonus");
+                    liHigh.innerHTML = `Card Sum Bonus: +${cardSumBonus} pts`;
+                    liHigh.onclick = () => openModal("Card Sum Bonus");
                     logList.appendChild(liHigh);
                     
                     setTimeout(() => {
@@ -668,12 +664,12 @@ button:disabled {
             }
 
             if (matchedList.length === 0) {
-                targetScore += highCardVal;
+                targetScore += cardSumBonus;
                 animateScoreToTarget();
                 let liNone = document.createElement('li');
                 liNone.style.color = "#888";
-                liNone.innerHTML = `High Card Bonus Only: +${highCardVal} pts`;
-                liNone.onclick = () => openModal("High Card Bonus");
+                liNone.innerHTML = `Card Sum Bonus Only: +${cardSumBonus} pts`;
+                liNone.onclick = () => openModal("Card Sum Bonus");
                 logList.appendChild(liNone);
                 
                 setTimeout(() => {
@@ -694,10 +690,10 @@ button:disabled {
 
             titleEl.innerText = bonusName;
 
-            if (bonusName === "High Card Bonus") {
+            if (bonusName === "Card Sum Bonus") {
                 tierEl.innerText = "Base Stat";
                 oddsEl.innerText = "100%";
-                triggerEl.innerText = "Adds numerical value of highest card.";
+                triggerEl.innerText = "Adds the combined numerical value of all 7 cards in your hand.";
             } else if (categoryMeta[bonusName]) {
                 let info = categoryMeta[bonusName];
                 tierEl.innerText = info.tier;
