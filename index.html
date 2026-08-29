@@ -576,11 +576,11 @@ button:disabled {
             
             // Fixed Full House check (Strictly 3 of a kind + pair, excluding 4-of-a-kind)
             if (countsArray[0] === 3 && countsArray[1] >= 2) {
-                matched["Full House"] = { pts: 300, tier: "tier-uncommon" };
+                matched["Full House"] = { pts: 400, tier: "tier-uncommon" };
             }
 
             if (maxSuitCount >= 5) matched["Flush"] = { pts: 300, tier: "tier-uncommon" };
-            if (allNumeric) matched["Digits"] = { pts: 400, tier: "tier-uncommon" };
+            if (allNumeric) matched["Digits"] = { pts: 300, tier: "tier-uncommon" };
             if (maxConsecutive >= 5) matched["Straight"] = { pts: 200, tier: "tier-uncommon" };
             if (maxRankCount >= 3) matched["Three of a Kind"] = { pts: 200, tier: "tier-uncommon" };
 
