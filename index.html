@@ -445,7 +445,7 @@ button:disabled {
         tier: "Divine", 
         tierClass: "tier-divine", 
         odds: "1 in 36.67M", 
-        score: "3M pts", 
+        score: "5M pts", 
         desc: "All 7 cards share the exact same suit AND form a 7-card straight." 
     },
     "Binary": { 
@@ -826,7 +826,7 @@ button:disabled {
 
                         // 1. Divine Tier
             let isSevenFlush = (maxSuitCount === 7 && maxConsecutive >= 7);
-            if (isSevenFlush) matched["Seven Flush"] = { pts: 3000000, tier: "tier-divine" };
+            if (isSevenFlush) matched["Seven Flush"] = { pts: 5000000, tier: "tier-divine" };
             
             // 2. Mythic Tier
             let isThreeBlindMice = hand.every(card => ['3', '6', '9'].includes(card.rank));
