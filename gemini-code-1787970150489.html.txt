@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seven Flush</title>
+    
+<style>
+:root {
+    --bg: #090b10;
+    --panel: #11151d;
+    --panel-2: #171c26;
+    --border: #27303d;
+    --text: #f4f6fa;
+    --muted: #7f8a9b;
+    --gold: #f4c95d;
+    --gold-bright: #ffe08a;
+    --green: #61d095;
+    --shadow: 0 18px 50px rgba(0,0,0,.35);
+}
+
+* { box-sizing: border-box; }
+
+body {
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", sans-serif;
+    background:
+        radial-gradient(circle at 50% 8%, rgba(244,201,93,.09), transparent 34%),
+        linear-gradient(180deg, #0b0e14 0%, var(--bg) 100%);
+    color: var(--text);
+    min-height: 100vh;
+    margin: 0;
+    padding: 32px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.game-shell {
+    width: min(760px, 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+h1 {
+    color: var(--text);
+    font-size: clamp(2rem, 7vw, 3rem);
+    letter-spacing: .16em;
+    line-height: 1;
+    margin: 0;
+    font-weight: 850;
+    text-align: center;
+}
+
+.eyebrow {
+    color: var(--gold);
+    font-size: .65rem;
+    font-weight: 850;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    margin-bottom: 9px;
+    opacity: .9;
+}
+
+.subtitle {
+    color: var(--muted);
+    font-size: .9rem;
+    margin: 10px 0 30px;
+    text-align: center;
+}
+
+.dashboard {
+    width: min(560px, 100%);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    margin-bottom: 28px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+}
+
+.stat-box {
+    background: linear-gradient(180deg, var(--panel-2), var(--panel));
+    text-align: center;
+    padding: 17px 20px;
+}
+
+.stat-value {
+    font-size: clamp(1.45rem, 5vw, 2rem);
+    line-height: 1.1;
+    font-weight: 800;
+    color: var(--gold-bright);
+    font-variant-numeric: tabular-nums;
+}
+
+.stat-label {
+    margin-top: 6px;
+    font-size: .68rem;
+    letter-spacing: .12em;
+    color: var(--muted);
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+.deck-container {
+    width: 100%;
+    min-height: 220px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 28px;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 14px;
+    border: 1px solid rgba(39,48,61,.75);
+    border-radius: 18px;
+    background: linear-gradient(180deg, rgba(23,28,38,.78), rgba(13,17,24,.65));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.025), 0 16px 35px rgba(0,0,0,.2);
+}
+
+.card-row {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.card {
+    width: clamp(58px, 12vw, 78px);
+    height: clamp(84px, 17vw, 108px);
+    background: linear-gradient(145deg, #ffffff 0%, #f0f2f5 100%);
+    color: #11151d;
+    border: 1px solid rgba(255,255,255,.65);
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 7px 8px;
+    font-weight: 800;
+    font-size: clamp(.82rem, 2.4vw, 1rem);
+    box-shadow: 0 8px 18px rgba(0,0,0,.3);
+    transition: transform .18s ease, box-shadow .18s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 14px 24px rgba(0,0,0,.35);
+}
+
+.card.red { color: #d7354a; }
+
+.card-top { align-self: flex-start; }
+.card-center {
+    align-self: center;
+    font-size: clamp(1.35rem, 4vw, 1.8rem);
+}
+.card-bottom {
+    align-self: flex-end;
+    transform: rotate(180deg);
+}
+
+button {
+    appearance: none;
+    background: linear-gradient(135deg, var(--gold-bright), var(--gold));
+    color: #17130a;
+    border: 0;
+    min-width: 220px;
+    padding: 14px 30px;
+    font-size: .95rem;
+    letter-spacing: .1em;
+    font-weight: 850;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 10px 25px rgba(244,201,93,.16);
+    transition: transform .15s ease, filter .15s ease, box-shadow .15s ease;
+}
+
+button:hover {
+    filter: brightness(1.06);
+    transform: translateY(-2px);
+    box-shadow: 0 14px 30px rgba(244,201,93,.22);
+}
+
+button:active { transform: translateY(1px); }
+
+button:disabled {
+    background: #2a303a;
+    color: #697384;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+    filter: none;
+}
+
+.log-container {
+    width: min(560px, 100%);
+    background: rgba(17,21,29,.92);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 17px 18px;
+    margin-top: 26px;
+    max-height: 220px;
+    overflow-y: auto;
+    box-shadow: var(--shadow);
+}
+
+.log-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: .72rem;
+    letter-spacing: .12em;
+    color: var(--muted);
+    text-transform: uppercase;
+    font-weight: 800;
+    margin-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 11px;
+}
+
+.log-title::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 10px rgba(97,208,149,.55);
+}
+
+.log-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: .88rem;
+}
+
+.log-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 9px 6px;
+    border-bottom: 1px solid rgba(39,48,61,.55);
+    animation: fadeIn .35s ease-out;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background 0.2s;
+}
+
+.log-list li:hover {
+    background: rgba(255,255,255,.04);
+}
+
+.log-list li:last-child { border-bottom: 0; }
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.tier-common { color: #aab2bf; }
+.tier-uncommon { color: #61d095; }
+.tier-rare { color: #63a9ff; }
+.tier-epic { color: #b78cff; }
+.tier-legendary { color: #ffb65c; }
+.tier-mythic { color: #ff6e9a; }
+.tier-divine {
+    color: var(--gold-bright);
+    font-weight: 800;
+    text-shadow: 0 0 10px rgba(244,201,93,.25);
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+.modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.modal {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    width: min(380px, 90%);
+    box-shadow: var(--shadow);
+    text-align: left;
+}
+
+.modal h3 {
+    margin-top: 0;
+    color: var(--gold-bright);
+    font-size: 1.25rem;
+    margin-bottom: 12px;
+}
+
+.modal p {
+    margin: 8px 0;
+    font-size: 0.9rem;
+    color: var(--text);
+    line-height: 1.4;
+}
+
+.modal .modal-label {
+    color: var(--muted);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    margin-top: 12px;
+    font-weight: 700;
+}
+
+.modal button.close-modal {
+    margin-top: 20px;
+    width: 100%;
+    min-width: 0;
+    padding: 10px;
+    font-size: 0.85rem;
+}
+</style>
+</head>
+<body>
+
+    <div class="game-shell">
+    <div class="eyebrow">7-CARD SCORE CHALLENGE</div>
+    <h1>SEVEN FLUSH</h1>
+    <div class="subtitle">Push button, watch bonuses roll in. Cascading hands count together!</div>
+
+    <div class="dashboard">
+        <div class="stat-box">
+            <div class="stat-value" id="totalScore">0</div>
+            <div class="stat-label">Total Score</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-value" id="handsPlayed">0</div>
+            <div class="stat-label">Hands Dealt</div>
+        </div>
+    </div>
+
+    <div class="deck-container" id="deckContainer">
+        <div class="card-row" id="cardRow1">
+            <div class="card" style="opacity: 0.3;"><span class="card-top">?</span><span class="card-center">🂠</span><span class="card-bottom">?</span></div>
+            <div class="card" style="opacity: 0.3;"><span class="card-top">?</span><span class="card-center">🂠</span><span class="card-bottom">?</span></div>
+            <div class="card" style="opacity: 0.3;"><span class="card-top">?</span><span class="card-center">🂠</span><span class="card-bottom">?</span></div>
+            <div class="card" style="opacity: 0.3;"><span class="card-top">?</span><span class="card-center">🂠</span><span class="card-bottom">?</span></div>
+        </div>
+        <div class="card-row" id="cardRow2">
+            <div class="card" style="opacity: 0.3;"><span class="card-top">?</span><span class="card-center">🂠</span><span class="card-bottom">?</span></div>
+            <div class="card" style="opacity: 0.3;"><span class="card-top">?</span><span class="card-center">🂠</span><span class="card-bottom">?</span></div>
+            <div class="card" style="opacity: 0.3;"><span class="card-top">?</span><span class="card-center">🂠</span><span class="card-bottom">?</span></div>
+        </div>
+    </div>
+
+    <button id="dealBtn" onclick="dealHand()">DEAL HAND</button>
+
+    <div class="log-container">
+        <div class="log-title">Triggered Categories</div>
+        <ul class="log-list" id="logList">
+            <li><em>Ready to deal...</em></li>
+        </ul>
+    </div>
+    </div>
+
+    <div class="modal-overlay" id="modalOverlay" onclick="closeModal()">
+        <div class="modal" onclick="event.stopPropagation()">
+            <h3 id="modalTitle">Bonus Name</h3>
+            <div class="modal-label">Rarity / Tier</div>
+            <p id="modalTier">Common</p>
+            <div class="modal-label">Exact Odds</div>
+            <p id="modalOdds">1 in X</p>
+            <div class="modal-label">Trigger Condition</div>
+            <p id="modalTrigger">Description of what triggers this bonus.</p>
+            <button class="close-modal" onclick="closeModal()">Got it</button>
+        </div>
+    </div>
+
+    <script>
+        const suits = ['♠', '♥', '♦', '♣'];
+        const suitColors = { '♠': 'black', '♣': 'black', '♥': 'red', '♦': 'red' };
+        const ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+        const rankValues = { '2':2, '3':3, '4':4, '5':5, '6':6, '7':7, '8':8, '9':9, '10':10, 'J':10, 'Q':10, 'K':10, 'A':11 };
+
+        const categoryMeta = {
+            "Seven Flush": { tier: "Divine", odds: "1 in 16,723,070", desc: "All 7 cards share the exact same suit AND form a 7-card straight." },
+            "Faces": { tier: "Mythic", odds: "1 in 168,920", desc: "Every card in the hand is a Jack, Queen, or King." },
+            "Binary": { tier: "Mythic", odds: "1 in 71,466", desc: "The hand consists of exactly 2 unique ranks total." },
+            "Blackjack": { tier: "Mythic", odds: "1 in 48,055", desc: "The sum of all card values equals 21 with zero Aces present." },
+            "Royal Flush": { tier: "Legendary", odds: "1 in 30,940", desc: "Contains 10, J, Q, K, A with at least 5 of those cards matching suit." },
+            "Unity": { tier: "Legendary", odds: "1 in 19,491", desc: "All 7 cards in your hand share the exact same suit." },
+            "Aces": { tier: "Epic", odds: "1 in 5,373", desc: "Your hand contains all 4 Aces." },
+            "Straight Flush": { tier: "Epic", odds: "1 in 3,591", desc: "Contains 5 or more consecutive ranks and 5 or more cards of one suit." },
+            "Evens / Odds": { tier: "Epic", odds: "1 in 1,230", desc: "All 7 cards are even-valued numbers OR all 7 are odd-valued numbers." },
+            "Four of a Kind": { tier: "Rare", odds: "1 in 595", desc: "Contains four cards of matching rank." },
+            "Seven": { tier: "Rare", odds: "1 in 583", desc: "Contains at least 7 consecutive rank values." },
+            "Monochromous": { tier: "Rare", odds: "1 in 102", desc: "All 7 cards in the hand are entirely red or entirely black." },
+            "Three Pair": { tier: "Uncommon", odds: "1 in 54.1", desc: "Contains at least 3 distinct pairs." },
+            "Full House": { tier: "Uncommon", odds: "1 in 38.5", desc: "Contains three of a kind plus a pair, or four of a kind." },
+            "Flush": { tier: "Uncommon", odds: "1 in 33.1", desc: "Contains 5 or more cards sharing the same suit." },
+            "Digits": { tier: "Uncommon", odds: "1 in 25.4", desc: "Every card in the hand is a number card (2 through 10)." },
+            "Straight": { tier: "Uncommon", odds: "1 in 21.6", desc: "Contains 5 or more consecutive rank values." },
+            "Three of a Kind": { tier: "Uncommon", odds: "1 in 20.7", desc: "Contains three cards of matching rank." },
+            "Diversity": { tier: "Common", odds: "1 in 5.89", desc: "All 7 cards in your hand have unique ranks." },
+            "Two Pair": { tier: "Common", odds: "1 in 4.26", desc: "Contains at least 2 distinct pairs (or four of a kind)." },
+            "One Pair": { tier: "Common", odds: "1 in 2.28", desc: "Contains at least 2 cards of matching rank." }
+        };
+
+        let playedCount = 0;
+        let isEvaluating = false;
+        let displayedScore = 0;
+        let targetScore = 0;
+        let scoreAnimFrame = null;
+
+        function createDeck() {
+            let deck = [];
+            for (let s of suits) {
+                for (let r of ranks) {
+                    deck.push({ rank: r, suit: s, val: rankValues[r] });
+                }
+            }
+            return deck;
+        }
+
+        function shuffle(deck) {
+            for (let i = deck.length - 1; i > 0; i--) {
+                let j = Math.floor(Math.random() * (i + 1));
+                [deck[i], deck[j]] = [deck[j], deck[i]];
+            }
+            return deck;
+        }
+
+        function dealHand() {
+            if (isEvaluating) return;
+            isEvaluating = true;
+            document.getElementById('dealBtn').disabled = true;
+
+            playedCount++;
+            document.getElementById('handsPlayed').innerText = playedCount;
+            
+            displayedScore = 0;
+            targetScore = 0;
+            document.getElementById('totalScore').innerText = '0';
+            if (scoreAnimFrame) cancelAnimationFrame(scoreAnimFrame);
+
+            let deck = shuffle(createDeck());
+            let hand = deck.slice(0, 7);
+            hand.sort((a, b) => rankValues[a.rank] - rankValues[b.rank]);
+
+            renderCards(hand);
+            evaluateHandSmooth(hand);
+        }
+
+        function renderCards(hand) {
+            const row1 = document.getElementById('cardRow1');
+            const row2 = document.getElementById('cardRow2');
+            row1.innerHTML = '';
+            row2.innerHTML = '';
+            
+            hand.forEach((card, index) => {
+                const isRed = suitColors[card.suit] === 'red';
+                const cardEl = document.createElement('div');
+                cardEl.className = `card ${isRed ? 'red' : ''}`;
+                cardEl.innerHTML = `
+                    <span class="card-top">${card.rank}</span>
+                    <span class="card-center">${card.suit}</span>
+                    <span class="card-bottom">${card.rank}</span>
+                `;
+                
+                if (index < 4) {
+                    row1.appendChild(cardEl);
+                } else {
+                    row2.appendChild(cardEl);
+                }
+            });
+        }
+
+        function animateScoreToTarget() {
+            if (displayedScore < targetScore) {
+                let diff = targetScore - displayedScore;
+                let step = Math.max(1, Math.ceil(diff / 10));
+                displayedScore += step;
+                if (displayedScore > targetScore) displayedScore = targetScore;
+                
+                document.getElementById('totalScore').innerText = displayedScore.toLocaleString();
+                scoreAnimFrame = requestAnimationFrame(animateScoreToTarget);
+            }
+        }
+
+        function evaluateHandSmooth(hand) {
+            let matched = {};
+
+            let suitCounts = {};
+            let rankCounts = {};
+            let allNumeric = true;
+            let sumRanks = 0;
+
+            hand.forEach(card => {
+                suitCounts[card.suit] = (suitCounts[card.suit] || 0) + 1;
+                rankCounts[card.rank] = (rankCounts[card.rank] || 0) + 1;
+                
+                let val = rankValues[card.rank];
+                sumRanks += val;
+                
+                if (['J', 'Q', 'K', 'A'].includes(card.rank)) {
+                    allNumeric = false;
+                }
+            });
+
+            let highCardVal = 0;
+            hand.forEach(c => {
+                if (rankValues[c.rank] > highCardVal) highCardVal = rankValues[c.rank];
+            });
+
+            let maxSuitCount = Math.max(...Object.values(suitCounts));
+            let uniqueRanks = Object.keys(rankCounts).length;
+            let maxRankCount = Math.max(...Object.values(rankCounts));
+            let countsArray = Object.values(rankCounts).sort((a,b) => b - a);
+            let pairCount = Object.values(rankCounts).filter(count => count >= 2).length;
+
+            let uniqueRankVals = [...new Set(hand.map(c => rankValues[c.rank]))].sort((a,b) => a-b);
+            let maxConsecutive = 1;
+            let currentConsecutive = 1;
+            for (let i = 0; i < uniqueRankVals.length - 1; i++) {
+                if (uniqueRankVals[i+1] === uniqueRankVals[i] + 1) {
+                    currentConsecutive++;
+                    if (currentConsecutive > maxConsecutive) maxConsecutive = currentConsecutive;
+                } else {
+                    currentConsecutive = 1;
+                }
+            }
+
+            // Checks
+            let isSevenFlush = (maxSuitCount === 7 && maxConsecutive >= 7);
+            if (isSevenFlush) matched["Seven Flush"] = { pts: 5000000, tier: "tier-divine" };
+            
+            if (hand.every(c => ['J', 'Q', 'K'].includes(c.rank))) matched["Faces"] = { pts: 1000000, tier: "tier-mythic" };
+            if (uniqueRanks === 2) matched["Binary"] = { pts: 2000000, tier: "tier-mythic" };
+            if (sumRanks === 21 && !hand.some(c => c.rank === 'A')) matched["Blackjack"] = { pts: 1000000, tier: "tier-mythic" };
+
+            let hasRoyalRanks = ['10', 'J', 'Q', 'K', 'A'].every(r => rankCounts[r] > 0);
+            let royalSuit = Object.keys(suitCounts).find(s => suitCounts[s] >= 5);
+            let isRoyalFlush = (hasRoyalRanks && royalSuit && hand.filter(c => c.suit === royalSuit && ['10','J','Q','K','A'].includes(c.rank)).length >= 5);
+            if (isRoyalFlush) matched["Royal Flush"] = { pts: 300000, tier: "tier-legendary" };
+
+            if (maxSuitCount === 7) matched["Unity"] = { pts: 300000, tier: "tier-legendary" };
+            if ((rankCounts['A'] || 0) >= 4) matched["Aces"] = { pts: 70000, tier: "tier-epic" };
+            if (maxConsecutive >= 5 && maxSuitCount >= 5) matched["Straight Flush"] = { pts: 30000, tier: "tier-epic" };
+
+            const numberCards = hand.filter(c => /^([2-9]|10)$/.test(c.rank));
+            const allEvens = numberCards.length === 7 && numberCards.every(c => Number(c.rank) % 2 === 0);
+            const allOdds = numberCards.length === 7 && numberCards.every(c => Number(c.rank) % 2 !== 0);
+            if (allEvens || allOdds) matched["Evens / Odds"] = { pts: 15000, tier: "tier-epic" };
+
+            if (maxRankCount >= 4) matched["Four of a Kind"] = { pts: 5000, tier: "tier-rare" };
+            if (maxConsecutive >= 7) matched["Seven"] = { pts: 10000, tier: "tier-rare" };
+
+            let redCount = (suitCounts['♥'] || 0) + (suitCounts['♦'] || 0);
+            let blackCount = (suitCounts['♠'] || 0) + (suitCounts['♣'] || 0);
+            if (redCount === 7 || blackCount === 7) matched["Monochromous"] = { pts: 1000, tier: "tier-rare" };
+
+            if (pairCount >= 3) matched["Three Pair"] = { pts: 500, tier: "tier-uncommon" };
+            if ((countsArray[0] >= 3 && countsArray[1] >= 2) || countsArray[0] >= 4) matched["Full House"] = { pts: 300, tier: "tier-uncommon" };
+            if (maxSuitCount >= 5) matched["Flush"] = { pts: 300, tier: "tier-uncommon" };
+            if (allNumeric) matched["Digits"] = { pts: 400, tier: "tier-uncommon" };
+            if (maxConsecutive >= 5) matched["Straight"] = { pts: 200, tier: "tier-uncommon" };
+            if (maxRankCount >= 3) matched["Three of a Kind"] = { pts: 200, tier: "tier-uncommon" };
+
+            if (uniqueRanks === 7) matched["Diversity"] = { pts: 20, tier: "tier-common" };
+            if ((countsArray[0] >= 2 && countsArray[1] >= 2) || countsArray[0] >= 4) matched["Two Pair"] = { pts: 40, tier: "tier-common" };
+            if (maxRankCount >= 2) matched["One Pair"] = { pts: 20, tier: "tier-common" };
+
+            // Cascades
+            if (isSevenFlush) {
+                matched["Unity"] = { pts: 300000, tier: "tier-legendary" };
+                matched["Straight Flush"] = { pts: 30000, tier: "tier-epic" };
+                matched["Seven"] = { pts: 10000, tier: "tier-rare" };
+                matched["Flush"] = { pts: 300, tier: "tier-uncommon" };
+                matched["Straight"] = { pts: 200, tier: "tier-uncommon" };
+                if (hasRoyalRanks) matched["Royal Flush"] = { pts: 300000, tier: "tier-legendary" };
+            }
+
+            if (isRoyalFlush) {
+                matched["Straight Flush"] = { pts: 30000, tier: "tier-epic" };
+                matched["Flush"] = { pts: 300, tier: "tier-uncommon" };
+                matched["Straight"] = { pts: 200, tier: "tier-uncommon" };
+            }
+
+            if (matched["Three Pair"]) {
+                matched["Two Pair"] = { pts: 40, tier: "tier-common" };
+                matched["One Pair"] = { pts: 20, tier: "tier-common" };
+            }
+
+            if (matched["Two Pair"]) {
+                matched["One Pair"] = { pts: 20, tier: "tier-common" };
+            }
+
+            if (matched["Four of a Kind"]) {
+                matched["Three of a Kind"] = { pts: 200, tier: "tier-uncommon" };
+                matched["Two Pair"] = { pts: 40, tier: "tier-common" };
+                matched["One Pair"] = { pts: 20, tier: "tier-common" };
+            }
+
+            if (matched["Three of a Kind"]) {
+                matched["One Pair"] = { pts: 20, tier: "tier-common" };
+            }
+
+            let matchedList = Object.keys(matched).map(key => ({
+                name: key,
+                pts: matched[key].pts,
+                tier: matched[key].tier
+            }));
+
+            matchedList.sort((a, b) => a.pts - b.pts);
+
+            const logList = document.getElementById('logList');
+            logList.innerHTML = '';
+
+            let index = 0;
+
+            function showNextBonus() {
+                if (index < matchedList.length) {
+                    let cat = matchedList[index];
+                    targetScore += cat.pts;
+                    animateScoreToTarget();
+
+                    let li = document.createElement('li');
+                    li.className = cat.tier;
+                    li.innerHTML = `<strong>${cat.name}</strong>: +${cat.pts.toLocaleString()} pts`;
+                    li.onclick = () => openModal(cat.name);
+                    logList.appendChild(li);
+
+                    index++;
+                    setTimeout(showNextBonus, 600); 
+                } else {
+                    targetScore += highCardVal;
+                    animateScoreToTarget();
+
+                    let liHigh = document.createElement('li');
+                    liHigh.style.color = "#888";
+                    liHigh.innerHTML = `High Card Bonus: +${highCardVal} pts`;
+                    liHigh.onclick = () => openModal("High Card Bonus");
+                    logList.appendChild(liHigh);
+                    
+                    setTimeout(() => {
+                        isEvaluating = false;
+                        document.getElementById('dealBtn').disabled = false;
+                    }, 400);
+                }
+            }
+
+            if (matchedList.length === 0) {
+                targetScore += highCardVal;
+                animateScoreToTarget();
+                let liNone = document.createElement('li');
+                liNone.style.color = "#888";
+                liNone.innerHTML = `High Card Bonus Only: +${highCardVal} pts`;
+                liNone.onclick = () => openModal("High Card Bonus");
+                logList.appendChild(liNone);
+                
+                setTimeout(() => {
+                    isEvaluating = false;
+                    document.getElementById('dealBtn').disabled = false;
+                }, 400);
+            } else {
+                setTimeout(showNextBonus, 400);
+            }
+        }
+
+        function openModal(bonusName) {
+            const modal = document.getElementById('modalOverlay');
+            const titleEl = document.getElementById('modalTitle');
+            const tierEl = document.getElementById('modalTier');
+            const oddsEl = document.getElementById('modalOdds');
+            const triggerEl = document.getElementById('modalTrigger');
+
+            titleEl.innerText = bonusName;
+
+            if (bonusName === "High Card Bonus") {
+                tierEl.innerText = "Base Stat";
+                oddsEl.innerText = "100%";
+                triggerEl.innerText = "Adds numerical value of highest card.";
+            } else if (categoryMeta[bonusName]) {
+                let info = categoryMeta[bonusName];
+                tierEl.innerText = info.tier;
+                oddsEl.innerText = info.odds;
+                triggerEl.innerText = info.desc;
+            } else {
+                tierEl.innerText = "Unknown";
+                oddsEl.innerText = "N/A";
+                triggerEl.innerText = "No description available.";
+            }
+
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('active');
+        }
+    </script>
+</body>
+</html>
