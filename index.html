@@ -462,13 +462,11 @@ button:disabled {
             "Digits": { tier: "Uncommon", tierClass: "tier-uncommon", odds: "1 in 25.4", score: "200 pts", desc: "Every card in the hand is a number card (2 through 10)." },
             "Straight": { tier: "Uncommon", tierClass: "tier-uncommon", odds: "1 in 21.6", score: "200 pts", desc: "Contains 5 or more consecutive rank values." },
             "Three of a Kind": { tier: "Uncommon", tierClass: "tier-uncommon", odds: "1 in 20.7", score: "200 pts", desc: "Contains three cards of matching rank." },
-            "Ace of Spades": { tier: "Common", tierClass: "tier-common", odds: "1 in 7.4", score: "65 pts", desc: "Bonus for holding the Ace of Spades in your hand." },
             "Diversity": { tier: "Common", tierClass: "tier-common", odds: "1 in 5.89", score: "50 pts", desc: "All 7 cards in your hand have unique ranks." },
             "Prime Time": { tier: "Common", tierClass: "tier-common", odds: "Custom", score: "40 pts", desc: "The total numerical sum of all 7 cards adds up to a prime number." },
             "Two Pair": { tier: "Common", tierClass: "tier-common", odds: "1 in 4.26", score: "40 pts", desc: "Contains at least 2 distinct pairs." },
             "One Pair": { tier: "Common", tierClass: "tier-common", odds: "1 in 2.28", score: "20 pts", desc: "Contains at least 2 cards of matching rank." },
-
-            
+            "Ace of Spades": { tier: "Common", tierClass: "tier-common", odds: "1 in 7.4", score: "65 pts", desc: "Bonus for holding the Ace of Spades in your hand." }
         };
 
         let playedCount = 0;
@@ -638,7 +636,6 @@ button:disabled {
             let isSevenFlush = (maxSuitCount === 7 && maxConsecutive >= 7);
             if (isSevenFlush) matched["Seven Flush"] = { pts: 3000000, tier: "tier-divine" };
             
-            // Custom Hands checks
             let isThreeBlindMice = hand.every(card => ['3', '6', '9'].includes(card.rank));
             if (isThreeBlindMice) matched["Three Blind Mice"] = { pts: 1500000, tier: "tier-mythic" };
 
