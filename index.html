@@ -397,7 +397,7 @@ button:disabled {
 
     <div class="button-row">
         <button id="dealBtn" onclick="dealHand()">DEAL HAND</button>
-        <button class="secondary-btn" onclick="openAllCategoriesModal()">ALL HANDS</button>
+        <button class="secondary-btn" onclick="openAllCategoriesModal()">ALL CATEGORIES</button>
     </div>
 
     <div class="log-container">
@@ -408,7 +408,6 @@ button:disabled {
     </div>
     </div>
 
-    <!-- Detail Modal -->
     <div class="modal-overlay" id="modalOverlay" onclick="closeModal()">
         <div class="modal" onclick="event.stopPropagation()">
             <h3 id="modalTitle">Bonus Name</h3>
@@ -422,14 +421,12 @@ button:disabled {
         </div>
     </div>
 
-    <!-- All Categories Modal -->
     <div class="modal-overlay" id="allCategoriesModalOverlay" onclick="closeAllCategoriesModal()">
         <div class="modal" onclick="event.stopPropagation()">
-            <h3>All Hands & Odds</h3>
-            <div class="modal-label">Click any hand to view details</div>
+            <h3>All Categories & Odds</h3>
+            <div class="modal-label">Click any category to view details</div>
             <ul class="log-list" id="allCatList" style="margin-top: 12px;">
-                <!-- Populated via JavaScript -->
-            </ul>
+                </ul>
             <button class="close-modal" onclick="closeAllCategoriesModal()">Close</button>
         </div>
     </div>
@@ -442,33 +439,34 @@ button:disabled {
 
         const categoryMeta = {
             "Seven Flush": { tier: "Divine", tierClass: "tier-divine", odds: "1 in 16M", score: "3M pts", desc: "All 7 cards share the exact same suit AND form a 7-card straight." },
-            "Three Blind Mice": { tier: "Mythic", tierClass: "tier-mythic", odds: "1 in 169K", score: "1.5M pts", desc: "Every single card in the hand is a multiple of 3 (3, 6, or 9)." },
-            "Faces": { tier: "Mythic", tierClass: "tier-mythic", odds: "1 in 169K", score: "1.5M pts", desc: "Every card in the hand is a Jack, Queen, or King." },
+            "Three Blind Mice": { tier: "Mythic", tierClass: "tier-mythic", odds: "Custom", score: "1.5M pts", desc: "Every single card in the hand is a multiple of 3 (3, 6, or 9)." },
+            "Faces": { tier: "Mythic", tierClass: "tier-mythic", odds: "1 in 169K", score: "1M pts", desc: "Every card in the hand is a Jack, Queen, or King." },
             "Binary": { tier: "Mythic", tierClass: "tier-mythic", odds: "1 in 71K", score: "600K pts", desc: "The hand consists of exactly 2 unique ranks total." },
             "Blackjack": { tier: "Mythic", tierClass: "tier-mythic", odds: "1 in 48K", score: "400K pts", desc: "The sum of all card values equals 21." },
             "Royal Flush": { tier: "Legendary", tierClass: "tier-legendary", odds: "1 in 31K", score: "300K pts", desc: "Contains 10, J, Q, K, A with at least 5 of those cards matching suit." },
             "Unity": { tier: "Legendary", tierClass: "tier-legendary", odds: "1 in 19K", score: "200K pts", desc: "All 7 cards in your hand share the exact same suit." },
-            "Fibonacci": { tier: "Epic", tierClass: "tier-epic", odds: "1 in 12K", score: "100K pts", desc: "All cards are 2, 3, 5, or 8." },
+            "Fibonacci": { tier: "Epic", tierClass: "tier-epic", odds: "Custom", score: "100K pts", desc: "All cards are 2, 3, 5, or 8." },
             "Aces": { tier: "Epic", tierClass: "tier-epic", odds: "1 in 5K", score: "50K pts", desc: "Your hand contains all 4 Aces." },
             "Straight Flush": { tier: "Epic", tierClass: "tier-epic", odds: "1 in 3.5K", score: "30K pts", desc: "Your hand contains 5 or more consecutive ranks and 5 or more cards of one suit." },
             "Evens / Odds": { tier: "Epic", tierClass: "tier-epic", odds: "1 in 1.2K", score: "10K pts", desc: "All 7 cards are even-valued numbers OR all 7 are odd-valued numbers." },
             "Four of a Kind": { tier: "Rare", tierClass: "tier-rare", odds: "1 in 595", score: "5K pts", desc: "Contains four cards of matching rank." },
             "Seven": { tier: "Rare", tierClass: "tier-rare", odds: "1 in 583", score: "5K pts", desc: "Contains at least 7 consecutive rank values." },
-            "Jack of All Trades": { tier: "Rare", tierClass: "tier-rare", odds: "1 in 261", score: "2K pts", desc: "Your hand must contain a Jack for every unique suit present in your hand." },
-            "Luck": { tier: "Rare", tierClass: "tier-rare", odds: "1 in 168", score: "1.5K pts", desc: "Your hand contains at least three 7s." },
+            "Color-Checkered": { tier: "Rare", tierClass: "tier-rare", odds: "1 in 305", score: "2,500 pts", desc: "Cards sorted by rank alternate perfectly between red and black with no pairs." },
+            "Jack of All Trades": { tier: "Rare", tierClass: "tier-rare", odds: "Custom", score: "2,000 pts", desc: "Your hand must contain a Jack for every unique suit present in your hand." },
+            "Luck": { tier: "Rare", tierClass: "tier-rare", odds: "Custom", score: "1,500 pts", desc: "Your hand contains at least three 7s." },
             "Monochromous": { tier: "Rare", tierClass: "tier-rare", odds: "1 in 102", score: "1K pts", desc: "All 7 cards in the hand are entirely red or entirely black." },
-            "Lovers": { tier: "Uncommon", tierClass: "tier-uncommon", odds: "1 in 59.5", score: "600 pts", desc: "Your hand contains both the King of Hearts and the Queen of Hearts." },
+            "Lovers": { tier: "Uncommon", tierClass: "tier-uncommon", odds: "Custom", score: "600 pts", desc: "Your hand contains both the King of Hearts and the Queen of Hearts." },
             "Three Pair": { tier: "Uncommon", tierClass: "tier-uncommon", odds: "1 in 54.1", score: "500 pts", desc: "Contains at least 3 distinct pairs." },
             "Full House": { tier: "Uncommon", tierClass: "tier-uncommon", odds: "1 in 38.5", score: "300 pts", desc: "Contains three of a kind plus a pair." },
             "Flush": { tier: "Uncommon", tierClass: "tier-uncommon", odds: "1 in 33.1", score: "300 pts", desc: "Contains 5 or more cards sharing the same suit." },
             "Digits": { tier: "Uncommon", tierClass: "tier-uncommon", odds: "1 in 25.4", score: "200 pts", desc: "Every card in the hand is a number card (2 through 10)." },
             "Straight": { tier: "Uncommon", tierClass: "tier-uncommon", odds: "1 in 21.6", score: "200 pts", desc: "Contains 5 or more consecutive rank values." },
             "Three of a Kind": { tier: "Uncommon", tierClass: "tier-uncommon", odds: "1 in 20.7", score: "200 pts", desc: "Contains three cards of matching rank." },
-            "Ace of Spades": { tier: "Common", tierClass: "tier-common", odds: "1 in 7.43", score: "65 pts", desc: "Bonus for holding the Ace of Spades in your hand." },
             "Diversity": { tier: "Common", tierClass: "tier-common", odds: "1 in 5.89", score: "50 pts", desc: "All 7 cards in your hand have unique ranks." },
-            "Prime Time": { tier: "Common", tierClass: "tier-common", odds: "1 in 4.56", score: "40 pts", desc: "The total numerical sum of all 7 cards adds up to a prime number." },
+            "Prime Time": { tier: "Common", tierClass: "tier-common", odds: "Custom", score: "40 pts", desc: "The total numerical sum of all 7 cards adds up to a prime number." },
             "Two Pair": { tier: "Common", tierClass: "tier-common", odds: "1 in 4.26", score: "40 pts", desc: "Contains at least 2 distinct pairs." },
             "One Pair": { tier: "Common", tierClass: "tier-common", odds: "1 in 2.28", score: "20 pts", desc: "Contains at least 2 cards of matching rank." },
+            "Ace of Spades": { tier: "Common", tierClass: "tier-common", odds: "1 in 7.4", score: "65 pts", desc: "Bonus for holding the Ace of Spades in your hand." }
         };
 
         let playedCount = 0;
@@ -666,6 +664,22 @@ button:disabled {
 
             if (maxRankCount >= 4) matched["Four of a Kind"] = { pts: 5000, tier: "tier-rare" };
             if (maxConsecutive >= 7) matched["Seven"] = { pts: 5000, tier: "tier-rare" };
+
+            // Check for Color-Checkered hand (sorted ranks alternate in color AND no pairs allowed)
+            let isColorCheckered = true;
+            if (hand.length === 7 && uniqueRanks === 7) {
+                for (let i = 0; i < hand.length - 1; i++) {
+                    let currentColor = suitColors[hand[i].suit];
+                    let nextColor = suitColors[hand[i+1].suit];
+                    if (currentColor === nextColor) {
+                        isColorCheckered = false;
+                        break;
+                    }
+                }
+            } else {
+                isColorCheckered = false;
+            }
+            if (isColorCheckered) matched["Color-Checkered"] = { pts: 2500, tier: "tier-rare" };
 
             let uniqueSuits = [...new Set(hand.map(c => c.suit))];
             let jacks = hand.filter(c => c.rank === 'J');
