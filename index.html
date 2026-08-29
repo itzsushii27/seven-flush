@@ -143,10 +143,18 @@ h1 {
     font-weight: 800;
     font-size: clamp(.82rem, 2.4vw, 1rem);
     box-shadow: 0 8px 18px rgba(0,0,0,.3);
-    transition: transform .18s ease, box-shadow .18s ease;
+    transition: transform .25s ease, opacity .25s ease, background .25s ease, box-shadow .18s ease;
 }
 
-.card:hover {
+.card.facedown {
+    background: linear-gradient(145deg, #1f2735 0%, #11151d 100%);
+    color: transparent;
+    border: 1px solid var(--border);
+    transform: rotateY(90deg) scale(0.95);
+    opacity: 0.4;
+}
+
+.card:not(.facedown):hover {
     transform: translateY(-5px);
     box-shadow: 0 14px 24px rgba(0,0,0,.35);
 }
@@ -163,13 +171,21 @@ h1 {
     transform: rotate(180deg);
 }
 
+.button-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
 button {
     appearance: none;
     background: linear-gradient(135deg, var(--gold-bright), var(--gold));
     color: #17130a;
     border: 0;
-    min-width: 220px;
-    padding: 14px 30px;
+    min-width: 180px;
+    padding: 14px 24px;
     font-size: .95rem;
     letter-spacing: .1em;
     font-weight: 850;
@@ -179,10 +195,22 @@ button {
     transition: transform .15s ease, filter .15s ease, box-shadow .15s ease;
 }
 
+button.secondary-btn {
+    background: linear-gradient(135deg, var(--panel-2), var(--panel));
+    color: var(--gold-bright);
+    border: 1px solid var(--border);
+    box-shadow: 0 10px 25px rgba(0,0,0,.2);
+}
+
 button:hover {
     filter: brightness(1.06);
     transform: translateY(-2px);
     box-shadow: 0 14px 30px rgba(244,201,93,.22);
+}
+
+button.secondary-btn:hover {
+    border-color: var(--gold);
+    box-shadow: 0 14px 30px rgba(0,0,0,.3);
 }
 
 button:active { transform: translateY(1px); }
@@ -202,7 +230,6 @@ button:disabled {
     border: 1px solid var(--border);
     border-radius: 16px;
     padding: 17px 18px;
-    margin-top: 26px;
     max-height: 220px;
     overflow-y: auto;
     box-shadow: var(--shadow);
@@ -297,7 +324,9 @@ button:disabled {
     border: 1px solid var(--border);
     border-radius: 16px;
     padding: 24px;
-    width: min(380px, 90%);
+    width: min(420px, 90%);
+    max-height: 85vh;
+    overflow-y: auto;
     box-shadow: var(--shadow);
     text-align: left;
 }
@@ -354,19 +383,22 @@ button:disabled {
 
     <div class="deck-container" id="deckContainer">
         <div class="card-row" id="cardRow1">
-            <div class="card" style="opacity: 0.3;"><span class="card-top">?</span><span class="card-center">🂠</span><span class="card-bottom">?</span></div>
-            <div class="card" style="opacity: 0.3;"><span class="card-top">?</span><span class="card-center">🂠</span><span class="card-bottom">?</span></div>
-            <div class="card" style="opacity: 0.3;"><span class="card-top">?</span><span class="card-center">🂠</span><span class="card-bottom">?</span></div>
-            <div class="card" style="opacity: 0.3;"><span class="card-top">?</span><span class="card-center">🂠</span><span class="card-bottom">?</span></div>
+            <div class="card facedown"><span class="card-top">?</span><span class="card-center">🂠</span><span class="card-bottom">?</span></div>
+            <div class="card facedown"><span class="card-top">?</span><span class="card-center">🂠</span><span class="card-bottom">?</span></div>
+            <div class="card facedown"><span class="card-top">?</span><span class="card-center">🂠</span><span class="card-bottom">?</span></div>
+            <div class="card facedown"><span class="card-top">?</span><span class="card-center">🂠</span><span class="card-bottom">?</span></div>
         </div>
         <div class="card-row" id="cardRow2">
-            <div class="card" style="opacity: 0.3;"><span class="card-top">?</span><span class="card-center">🂠</span><span class="card-bottom">?</span></div>
-            <div class="card" style="opacity: 0.3;"><span class="card-top">?</span><span class="card-center">🂠</span><span class="card-bottom">?</span></div>
-            <div class="card" style="opacity: 0.3;"><span class="card-top">?</span><span class="card-center">🂠</span><span class="card-bottom">?</span></div>
+            <div class="card facedown"><span class="card-top">?</span><span class="card-center">🂠</span><span class="card-bottom">?</span></div>
+            <div class="card facedown"><span class="card-top">?</span><span class="card-center">🂠</span><span class="card-bottom">?</span></div>
+            <div class="card facedown"><span class="card-top">?</span><span class="card-center">🂠</span><span class="card-bottom">?</span></div>
         </div>
     </div>
 
-    <button id="dealBtn" onclick="dealHand()">DEAL HAND</button>
+    <div class="button-row">
+        <button id="dealBtn" onclick="dealHand()">DEAL HAND</button>
+        <button class="secondary-btn" onclick="openAllCategoriesModal()">ALL CATEGORIES</button>
+    </div>
 
     <div class="log-container">
         <div class="log-title">Triggered Categories</div>
@@ -376,6 +408,7 @@ button:disabled {
     </div>
     </div>
 
+    <!-- Detail Modal -->
     <div class="modal-overlay" id="modalOverlay" onclick="closeModal()">
         <div class="modal" onclick="event.stopPropagation()">
             <h3 id="modalTitle">Bonus Name</h3>
@@ -389,6 +422,18 @@ button:disabled {
         </div>
     </div>
 
+    <!-- All Categories Modal -->
+    <div class="modal-overlay" id="allCategoriesModalOverlay" onclick="closeAllCategoriesModal()">
+        <div class="modal" onclick="event.stopPropagation()">
+            <h3>All Categories & Odds</h3>
+            <div class="modal-label">Click any category to view details</div>
+            <ul class="log-list" id="allCatList" style="margin-top: 12px;">
+                <!-- Populated via JavaScript -->
+            </ul>
+            <button class="close-modal" onclick="closeAllCategoriesModal()">Close</button>
+        </div>
+    </div>
+
     <script>
         const suits = ['♠', '♥', '♦', '♣'];
         const suitColors = { '♠': 'black', '♣': 'black', '♥': 'red', '♦': 'red' };
@@ -396,27 +441,27 @@ button:disabled {
         const rankValues = { '2':2, '3':3, '4':4, '5':5, '6':6, '7':7, '8':8, '9':9, '10':10, 'J':10, 'Q':10, 'K':10, 'A':11 };
 
         const categoryMeta = {
-            "Seven Flush": { tier: "Divine", odds: "1 in 16,723,070", desc: "All 7 cards share the exact same suit AND form a 7-card straight." },
-            "Faces": { tier: "Mythic", odds: "1 in 168,920", desc: "Every card in the hand is a Jack, Queen, or King." },
-            "Binary": { tier: "Mythic", odds: "1 in 71,466", desc: "The hand consists of exactly 2 unique ranks total." },
-            "Blackjack": { tier: "Mythic", odds: "1 in 48,055", desc: "The sum of all card values equals 21 with zero Aces present." },
-            "Royal Flush": { tier: "Legendary", odds: "1 in 30,940", desc: "Contains 10, J, Q, K, A with at least 5 of those cards matching suit." },
-            "Unity": { tier: "Legendary", odds: "1 in 19,491", desc: "All 7 cards in your hand share the exact same suit." },
-            "Aces": { tier: "Epic", odds: "1 in 5,373", desc: "Your hand contains all 4 Aces." },
-            "Straight Flush": { tier: "Epic", odds: "1 in 3,591", desc: "Contains 5 or more consecutive ranks and 5 or more cards of one suit." },
-            "Evens / Odds": { tier: "Epic", odds: "1 in 1,230", desc: "All 7 cards are even-valued numbers OR all 7 are odd-valued numbers." },
-            "Four of a Kind": { tier: "Rare", odds: "1 in 595", desc: "Contains four cards of matching rank." },
-            "Seven": { tier: "Rare", odds: "1 in 583", desc: "Contains at least 7 consecutive rank values." },
-            "Monochromous": { tier: "Rare", odds: "1 in 102", desc: "All 7 cards in the hand are entirely red or entirely black." },
-            "Three Pair": { tier: "Uncommon", odds: "1 in 54.1", desc: "Contains at least 3 distinct pairs." },
-            "Full House": { tier: "Uncommon", odds: "1 in 38.5", desc: "Contains three of a kind plus a pair." },
-            "Flush": { tier: "Uncommon", odds: "1 in 33.1", desc: "Contains 5 or more cards sharing the same suit." },
-            "Digits": { tier: "Uncommon", odds: "1 in 25.4", desc: "Every card in the hand is a number card (2 through 10)." },
-            "Straight": { tier: "Uncommon", odds: "1 in 21.6", desc: "Contains 5 or more consecutive rank values." },
-            "Three of a Kind": { tier: "Uncommon", odds: "1 in 20.7", desc: "Contains three cards of matching rank." },
-            "Diversity": { tier: "Common", odds: "1 in 5.89", desc: "All 7 cards in your hand have unique ranks." },
-            "Two Pair": { tier: "Common", odds: "1 in 4.26", desc: "Contains at least 2 distinct pairs." },
-            "One Pair": { tier: "Common", odds: "1 in 2.28", desc: "Contains at least 2 cards of matching rank." }
+            "Seven Flush": { tier: "Divine", tierClass: "tier-divine", odds: "1 in 16,723,070", score: "3M pts", desc: "All 7 cards share the exact same suit AND form a 7-card straight." },
+            "Faces": { tier: "Mythic", tierClass: "tier-mythic", odds: "1 in 168,920", score: "1.00M pts", desc: "Every card in the hand is a Jack, Queen, or King." },
+            "Binary": { tier: "Mythic", tierClass: "tier-mythic", odds: "1 in 71,466", score: "600K pts", desc: "The hand consists of exactly 2 unique ranks total." },
+            "Blackjack": { tier: "Mythic", tierClass: "tier-mythic", odds: "1 in 48,055", score: "400K pts", desc: "The sum of all card values equals 21 with zero Aces present." },
+            "Royal Flush": { tier: "Legendary", tierClass: "tier-legendary", odds: "1 in 30,940", score: "300K pts", desc: "Contains 10, J, Q, K, A with at least 5 of those cards matching suit." },
+            "Unity": { tier: "Legendary", tierClass: "tier-legendary", odds: "1 in 19,491", score: "200K pts", desc: "All 7 cards in your hand share the exact same suit." },
+            "Aces": { tier: "Epic", tierClass: "tier-epic", odds: "1 in 5,373", score: "50K pts", desc: "Your hand contains all 4 Aces." },
+            "Straight Flush": { tier: "Epic", tierClass: "tier-epic", odds: "1 in 3,591", score: "30K pts", desc: "Contains 5 or more consecutive ranks and 5 or more cards of one suit." },
+            "Evens / Odds": { tier: "Epic", tierClass: "tier-epic", odds: "1 in 1,230", score: "10K pts", desc: "All 7 cards are even-valued numbers OR all 7 are odd-valued numbers." },
+            "Four of a Kind": { tier: "Rare", tierClass: "tier-rare", odds: "1 in 595", score: "5K pts", desc: "Contains four cards of matching rank." },
+            "Seven": { tier: "Rare", tierClass: "tier-rare", odds: "1 in 583", score: "5K pts", desc: "Contains at least 7 consecutive rank values." },
+            "Monochromous": { tier: "Rare", tierClass: "tier-rare", odds: "1 in 102", score: "1K pts", desc: "All 7 cards in the hand are entirely red or entirely black." },
+            "Three Pair": { tier: "Uncommon", tierClass: "tier-uncommon", odds: "1 in 54.1", score: "500 pts", desc: "Contains at least 3 distinct pairs." },
+            "Full House": { tier: "Uncommon", tierClass: "tier-uncommon", odds: "1 in 38.5", score: "300 pts", desc: "Contains three of a kind plus a pair." },
+            "Flush": { tier: "Uncommon", tierClass: "tier-uncommon", odds: "1 in 33.1", score: "300 pts", desc: "Contains 5 or more cards sharing the same suit." },
+            "Digits": { tier: "Uncommon", tierClass: "tier-uncommon", odds: "1 in 25.4", score: "200 pts", desc: "Every card in the hand is a number card (2 through 10)." },
+            "Straight": { tier: "Uncommon", tierClass: "tier-uncommon", odds: "1 in 21.6", score: "200 pts", desc: "Contains 5 or more consecutive rank values." },
+            "Three of a Kind": { tier: "Uncommon", tierClass: "tier-uncommon", odds: "1 in 20.7", score: "200 pts", desc: "Contains three cards of matching rank." },
+            "Diversity": { tier: "Common", tierClass: "tier-common", odds: "1 in 5.89", score: "50 pts", desc: "All 7 cards in your hand have unique ranks." },
+            "Two Pair": { tier: "Common", tierClass: "tier-common", odds: "1 in 4.26", score: "40 pts", desc: "Contains at least 2 distinct pairs." },
+            "One Pair": { tier: "Common", tierClass: "tier-common", odds: "1 in 2.28", score: "20 pts", desc: "Contains at least 2 cards of matching rank." }
         };
 
         let playedCount = 0;
@@ -424,6 +469,22 @@ button:disabled {
         let displayedScore = 0;
         let targetScore = 0;
         let scoreAnimFrame = null;
+
+        // Populate All Categories modal list on load
+        window.addEventListener('DOMContentLoaded', () => {
+            const listEl = document.getElementById('allCatList');
+            listEl.innerHTML = '';
+            for (let [catName, data] of Object.entries(categoryMeta)) {
+                let li = document.createElement('li');
+                li.className = data.tierClass;
+                li.innerHTML = `<strong>${catName}</strong> <span style="font-size:0.75rem; color:var(--muted);">${data.odds} (${data.score})</span>`;
+                li.onclick = () => {
+                    closeAllCategoriesModal();
+                    openModal(catName);
+                };
+                listEl.appendChild(li);
+            }
+        });
 
         function createDeck() {
             let deck = [];
@@ -456,36 +517,56 @@ button:disabled {
             document.getElementById('totalScore').innerText = '0';
             if (scoreAnimFrame) cancelAnimationFrame(scoreAnimFrame);
 
+            document.getElementById('logList').innerHTML = '<li><em>Dealing cards...</em></li>';
+
             let deck = shuffle(createDeck());
             let hand = deck.slice(0, 7);
             hand.sort((a, b) => rankValues[a.rank] - rankValues[b.rank]);
 
-            renderCards(hand);
-            evaluateHandSmooth(hand);
+            renderFaceDownCards();
+            flipCardsSequentially(hand);
         }
 
-        function renderCards(hand) {
+        function renderFaceDownCards() {
             const row1 = document.getElementById('cardRow1');
             const row2 = document.getElementById('cardRow2');
             row1.innerHTML = '';
             row2.innerHTML = '';
             
-            hand.forEach((card, index) => {
-                const isRed = suitColors[card.suit] === 'red';
+            for (let i = 0; i < 7; i++) {
                 const cardEl = document.createElement('div');
-                cardEl.className = `card ${isRed ? 'red' : ''}`;
-                cardEl.innerHTML = `
-                    <span class="card-top">${card.rank}</span>
-                    <span class="card-center">${card.suit}</span>
-                    <span class="card-bottom">${card.rank}</span>
-                `;
-                
-                if (index < 4) {
-                    row1.appendChild(cardEl);
+                cardEl.className = 'card facedown';
+                cardEl.innerHTML = `<span class="card-top">?</span><span class="card-center">🂠</span><span class="card-bottom">?</span>`;
+                if (i < 4) row1.appendChild(cardEl);
+                else row2.appendChild(cardEl);
+            }
+        }
+
+        function flipCardsSequentially(hand) {
+            const row1Children = document.getElementById('cardRow1').children;
+            const row2Children = document.getElementById('cardRow2').children;
+            const allCardEls = [...row1Children, ...row2Children];
+
+            let index = 0;
+            function flipNext() {
+                if (index < hand.length) {
+                    let card = hand[index];
+                    let cardEl = allCardEls[index];
+                    const isRed = suitColors[card.suit] === 'red';
+
+                    cardEl.className = `card ${isRed ? 'red' : ''}`;
+                    cardEl.innerHTML = `
+                        <span class="card-top">${card.rank}</span>
+                        <span class="card-center">${card.suit}</span>
+                        <span class="card-bottom">${card.rank}</span>
+                    `;
+                    index++;
+                    setTimeout(flipNext, 200);
                 } else {
-                    row2.appendChild(cardEl);
+                    evaluateHandSmooth(hand);
                 }
-            });
+            }
+            setTimeout(flipNext, 300);
         }
 
         function animateScoreToTarget() {
@@ -540,7 +621,6 @@ button:disabled {
                 }
             }
 
-            // Updated Scores matching your table exactly:
             let isSevenFlush = (maxSuitCount === 7 && maxConsecutive >= 7);
             if (isSevenFlush) matched["Seven Flush"] = { pts: 3000000, tier: "tier-divine" };
             
@@ -710,6 +790,14 @@ button:disabled {
 
         function closeModal() {
             document.getElementById('modalOverlay').classList.remove('active');
+        }
+
+        function openAllCategoriesModal() {
+            document.getElementById('allCategoriesModalOverlay').classList.add('active');
+        }
+
+        function closeAllCategoriesModal() {
+            document.getElementById('allCategoriesModalOverlay').classList.remove('active');
         }
     </script>
 </body>
