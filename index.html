@@ -409,13 +409,13 @@ button:disabled {
             "Seven": { tier: "Rare", odds: "1 in 583", desc: "Contains at least 7 consecutive rank values." },
             "Monochromous": { tier: "Rare", odds: "1 in 102", desc: "All 7 cards in the hand are entirely red or entirely black." },
             "Three Pair": { tier: "Uncommon", odds: "1 in 54.1", desc: "Contains at least 3 distinct pairs." },
-            "Full House": { tier: "Uncommon", odds: "1 in 38.5", desc: "Contains three of a kind plus a pair, or four of a kind." },
+            "Full House": { tier: "Uncommon", odds: "1 in 38.5", desc: "Contains three of a kind plus a pair." },
             "Flush": { tier: "Uncommon", odds: "1 in 33.1", desc: "Contains 5 or more cards sharing the same suit." },
             "Digits": { tier: "Uncommon", odds: "1 in 25.4", desc: "Every card in the hand is a number card (2 through 10)." },
             "Straight": { tier: "Uncommon", odds: "1 in 21.6", desc: "Contains 5 or more consecutive rank values." },
             "Three of a Kind": { tier: "Uncommon", odds: "1 in 20.7", desc: "Contains three cards of matching rank." },
             "Diversity": { tier: "Common", odds: "1 in 5.89", desc: "All 7 cards in your hand have unique ranks." },
-            "Two Pair": { tier: "Common", odds: "1 in 4.26", desc: "Contains at least 2 distinct pairs (or four of a kind)." },
+            "Two Pair": { tier: "Common", odds: "1 in 4.26", desc: "Contains at least 2 distinct pairs." },
             "One Pair": { tier: "Common", odds: "1 in 2.28", desc: "Contains at least 2 cards of matching rank." }
         };
 
@@ -573,13 +573,18 @@ button:disabled {
             if (redCount === 7 || blackCount === 7) matched["Monochromous"] = { pts: 1000, tier: "tier-rare" };
 
             if (pairCount >= 3) matched["Three Pair"] = { pts: 500, tier: "tier-uncommon" };
-            if ((countsArray[0] >= 3 && countsArray[1] >= 2) || countsArray[0] >= 4) matched["Full House"] = { pts: 300, tier: "tier-uncommon" };
+            
+            // Fixed Full House check (Strictly 3 of a kind + pair, excluding 4-of-a-kind)
+            if (countsArray[0] === 3 && countsArray[1] >= 2) {
+                matched["Full House"] = { pts: 300, tier: "tier-uncommon" };
+            }
+
             if (maxSuitCount >= 5) matched["Flush"] = { pts: 300, tier: "tier-uncommon" };
             if (allNumeric) matched["Digits"] = { pts: 400, tier: "tier-uncommon" };
             if (maxConsecutive >= 5) matched["Straight"] = { pts: 200, tier: "tier-uncommon" };
             if (maxRankCount >= 3) matched["Three of a Kind"] = { pts: 200, tier: "tier-uncommon" };
 
-            if (uniqueRanks === 7) matched["Diversity"] = { pts: 20, tier: "tier-common" };
+            if (uniqueRanks === 7) matched["Diversity"] = { pts: 40, tier: "tier-common" };
             if ((countsArray[0] >= 2 && countsArray[1] >= 2) || countsArray[0] >= 4) matched["Two Pair"] = { pts: 40, tier: "tier-common" };
             if (maxRankCount >= 2) matched["One Pair"] = { pts: 20, tier: "tier-common" };
 
@@ -600,7 +605,7 @@ button:disabled {
             }
 
             if (matched["Three Pair"]) {
-                matched["Two Pair"] = { pts: 40, tier: "tier-common" };
+                matched["Two Pair"] = { pts: 30, tier: "tier-common" };
                 matched["One Pair"] = { pts: 20, tier: "tier-common" };
             }
 
@@ -610,7 +615,7 @@ button:disabled {
 
             if (matched["Four of a Kind"]) {
                 matched["Three of a Kind"] = { pts: 200, tier: "tier-uncommon" };
-                matched["Two Pair"] = { pts: 40, tier: "tier-common" };
+                matched["Two Pair"] = { pts: 30, tier: "tier-common" };
                 matched["One Pair"] = { pts: 20, tier: "tier-common" };
             }
 
