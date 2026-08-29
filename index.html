@@ -585,7 +585,7 @@ button:disabled {
             if (maxRankCount >= 3) matched["Three of a Kind"] = { pts: 200, tier: "tier-uncommon" };
 
             if (uniqueRanks === 7) matched["Diversity"] = { pts: 40, tier: "tier-common" };
-            if ((countsArray[0] >= 2 && countsArray[1] >= 2) || countsArray[0] >= 4) matched["Two Pair"] = { pts: 40, tier: "tier-common" };
+            if ((countsArray[0] >= 2 && countsArray[1] >= 2) || countsArray[0] >= 4) matched["Two Pair"] = { pts: 30, tier: "tier-common" };
             if (maxRankCount >= 2) matched["One Pair"] = { pts: 20, tier: "tier-common" };
 
             // Cascades
