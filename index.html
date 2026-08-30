@@ -295,6 +295,7 @@ button:disabled {
 .tier-epic { color: #b78cff; }
 .tier-legendary { color: #ffb65c; }
 .tier-mythic { color: #ff6e9a; }
+.tier-transcendent { color: #ffffff; font-weight: 900; text-shadow: 0 0 12px rgba(255,255,255,0.6); }
 .tier-divine {
     color: var(--gold-bright);
     font-weight: 800;
@@ -667,6 +668,39 @@ button:disabled {
         let targetScore = 0;
         let scoreAnimFrame = null;
 
+        function getPercentileAndRarity(score) {
+            const benchmarks = [
+                { threshold: 3539224, pct: 0.000001, label: "Transcendent", classStyle: "tier-transcendent" },
+                { threshold: 3238606, pct: 0.00001,  label: "Divine",       classStyle: "tier-divine" },
+                { threshold: 2017337, pct: 0.0001,   label: "Mythic",       classStyle: "tier-mythic" },
+                { threshold: 1010630, pct: 0.001,    label: "Mythic",       classStyle: "tier-mythic" },
+                { threshold: 203407,  pct: 0.01,     label: "Legendary",    classStyle: "tier-legendary" },
+                { threshold: 30653,   pct: 0.1,      label: "Epic",         classStyle: "tier-epic" },
+                { threshold: 2605,    pct: 1.0,      label: "Rare",         classStyle: "tier-rare" },
+                { threshold: 684,     pct: 5.0,      label: "Rare",         classStyle: "tier-rare" },
+                { threshold: 445,     pct: 10.0,     label: "Uncommon",     classStyle: "tier-uncommon" },
+                { threshold: 187,     pct: 25.0,     label: "Uncommon",     classStyle: "tier-uncommon" },
+                { threshold: 113,     pct: 50.0,     label: "Uncommon",     classStyle: "tier-uncommon" },
+                { threshold: 80,      pct: 75.0,     label: "Common",       classStyle: "tier-common" },
+                { threshold: 53,      pct: 100.0,    label: "Common",       classStyle: "tier-common" }
+            ];
+
+            let matched = benchmarks[benchmarks.length - 1];
+            for (let i = 0; i < benchmarks.length; i++) {
+                if (score >= benchmarks[i].threshold) {
+                    matched = benchmarks[i];
+                    break;
+                }
+            }
+
+            let pFormatted = matched.pct < 0.001 ? matched.pct.toFixed(6) : (matched.pct < 1 ? matched.pct.toFixed(4) : matched.pct.toFixed(1));
+
+            return { 
+                text: `Top ${pFormatted}% — <span class="${matched.classStyle}">${matched.label}</span>`, 
+                class: matched.classStyle 
+            };
+        }
+
         window.addEventListener('DOMContentLoaded', () => {
             const listEl = document.getElementById('allCatList');
             listEl.innerHTML = '';
@@ -825,7 +859,7 @@ button:disabled {
                 }
             }
 
-                        // 1. Divine Tier
+            // 1. Divine Tier
             let isSevenFlush = (maxSuitCount === 7 && maxConsecutive >= 7);
             if (isSevenFlush) matched["Seven Flush"] = { pts: 3000000, tier: "tier-divine" };
             
@@ -843,7 +877,6 @@ button:disabled {
 
             // 3. Legendary Tier
 
-            // Kingdom: King, Queen, Jack of different suits; remaining 4 match the 4th suit
             let hasK = hand.some(c => c.rank === 'K');
             let hasQ = hand.some(c => c.rank === 'Q');
             let hasJ = hand.some(c => c.rank === 'J');
@@ -885,7 +918,6 @@ button:disabled {
             if (allEvens || allOdds) matched["Evens / Odds"] = { pts: 10000, tier: "tier-epic" };
 
             // 5. Rare Tier
-            // Four Corners: Exactly one A, K, Q, J sharing different suits with no extra face cards/Aces
             let isFourCorners = false;
             let hasA = hand.some(c => c.rank === 'A');
             if (hasA && hasK && hasQ && hasJ && hand.length === 7) {
@@ -901,7 +933,6 @@ button:disabled {
             if (maxRankCount >= 4) matched["Four of a Kind"] = { pts: 5000, tier: "tier-rare" };
             if (maxConsecutive >= 7) matched["Seven"] = { pts: 5000, tier: "tier-rare" };
 
-            // FIX: Sort hand by rank mapping before evaluating checkered pattern
             let isColorCheckered = false;
             if (hand.length === 7 && uniqueRanks === 7) {
                 const rankOrder = {'2':2,'3':3,'4':4,'5':5,'6':6,'7':7,'8':8,'9':9,'10':10,'J':11,'Q':12,'K':13,'A':14};
