@@ -440,225 +440,226 @@ button:disabled {
         const ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
         const rankValues = { '2':2, '3':3, '4':4, '5':5, '6':6, '7':7, '8':8, '9':9, '10':10, 'J':10, 'Q':10, 'K':10, 'A':11 };
 
-        const categoryMeta = {
-    "Seven Flush": { 
-        tier: "Divine", 
-        tierClass: "tier-divine", 
-        odds: "1 in 36.67M", 
-        score: "5M pts", 
-        desc: "All 7 cards share the exact same suit AND form a 7-card straight." 
-    },
-    "Binary": { 
-        tier: "Mythic", 
-        tierClass: "tier-mythic", 
-        odds: "1 in 1.88M", 
-        score: "2M pts", 
-        desc: "The hand consists of exactly 2 unique ranks total." 
-    },
-    "Three Blind Mice": { 
-        tier: "Mythic", 
-        tierClass: "tier-mythic", 
-        odds: "1 in 1.48M", 
-        score: "1.5M pts", 
-        desc: "Every single card in the hand is a multiple of 3 (3, 6, or 9)." 
-    },
-    "Faces": { 
-        tier: "Mythic", 
-        tierClass: "tier-mythic", 
-        odds: "1 in 1.48M", 
-        score: "1.5M pts", 
-        desc: "Every card in the hand is a Jack, Queen, or King." 
-    },
-    "Blackjack": { 
-        tier: "Legendary", 
-        tierClass: "tier-legendary", 
-        odds: "1 in 1.44M", 
-        score: "400K pts", 
-        desc: "The sum of all card values equals 21." 
-    },
-    "Kingdom": { 
-        tier: "Legendary", 
-        tierClass: "tier-legendary", 
-        odds: "1 in 386K", 
-        score: "400K pts", 
-        desc: "Contains a King, Queen, and Jack of different suits with no other face cards or Aces, while the remaining cards match the fourth suit." 
-    },
-    "Royal Flush": { 
-        tier: "Legendary", 
-        tierClass: "tier-legendary", 
-        odds: "1 in 271K", 
-        score: "300K pts", 
-        desc: "Contains 10, J, Q, K, A with at least 5 of those cards matching suit." 
-    },
-    "Unity": { 
-        tier: "Legendary", 
-        tierClass: "tier-legendary", 
-        odds: "1 in 171K", 
-        score: "200K pts", 
-        desc: "All 7 cards in your hand share the exact same suit." 
-    },
-    "Fibonacci": { 
-        tier: "Epic", 
-        tierClass: "tier-epic", 
-        odds: "1 in 103K", 
-        score: "100K pts", 
-        desc: "All cards are 2, 3, 5, or 8." 
-    },
-    "Aces": { 
-        tier: "Epic", 
-        tierClass: "tier-epic", 
-        odds: "1 in 67.8K", 
-        score: "70K pts", 
-        desc: "Your hand contains all 4 Aces." 
-    },
-    "Straight Flush": { 
-        tier: "Epic", 
-        tierClass: "tier-epic", 
-        odds: "1 in 28.2K", 
-        score: "30K pts", 
-        desc: "Your hand contains 5 or more consecutive ranks and 5 or more cards of one suit." 
-    },
-    "Evens / Odds": { 
-        tier: "Epic", 
-        tierClass: "tier-epic", 
-        odds: "1 in 10.5K", 
-        score: "10K pts", 
-        desc: "All 7 cards are even-valued numbers OR all 7 are odd-valued numbers." 
-    },
-    "Four Corners": { 
-        tier: "Rare", 
-        tierClass: "tier-rare", 
-        odds: "1 in 6.8K", 
-        score: "7K pts", 
-        desc: "Contains exactly one Ace, King, Queen, and Jack all sharing different suits with no extra face cards or Aces allowed." 
-    },
-    "Four of a Kind": { 
-        tier: "Rare", 
-        tierClass: "tier-rare", 
-        odds: "1 in 5.2K", 
-        score: "5K pts", 
-        desc: "Contains four cards of matching rank." 
-    },
-    "Seven": { 
-        tier: "Rare", 
-        tierClass: "tier-rare", 
-        odds: "1 in 5.1K", 
-        score: "5K pts", 
-        desc: "Contains at least 7 consecutive rank values." 
-    },
-    "Checkered": { 
-        tier: "Rare", 
-        tierClass: "tier-rare", 
-        odds: "1 in 2.7K", 
-        score: "2.5K pts", 
-        desc: "Cards sorted by rank alternate perfectly between red and black with no pairs." 
-    },
-    "Jack of All Trades": { 
-        tier: "Rare", 
-        tierClass: "tier-rare", 
-        odds: "1 in 2.3K", 
-        score: "2K pts", 
-        desc: "Your hand must contain a Jack for every unique suit present in your hand." 
-    },
-    "Luck": { 
-        tier: "Rare", 
-        tierClass: "tier-rare", 
-        odds: "1 in 1.5K", 
-        score: "1.5K pts", 
-        desc: "Your hand contains at least three 7s." 
-    },
-    "Monochromous": { 
-        tier: "Rare", 
-        tierClass: "tier-rare", 
-        odds: "1 in 892", 
-        score: "1K pts", 
-        desc: "All 7 cards in the hand are entirely red or entirely black." 
-    },
-    "Lovers": { 
-        tier: "Uncommon", 
-        tierClass: "tier-uncommon", 
-        odds: "1 in 553", 
-        score: "600 pts", 
-        desc: "Your hand contains both the King of Hearts and the Queen of Hearts." 
-    },
-    "Three Pair": { 
-        tier: "Uncommon", 
-        tierClass: "tier-uncommon", 
-        odds: "1 in 474", 
-        score: "500 pts", 
-        desc: "Contains at least 3 distinct pairs." 
-    },
-    "Full House": { 
-        tier: "Uncommon", 
-        tierClass: "tier-uncommon", 
-        odds: "1 in 338", 
-        score: "300 pts", 
-        desc: "Contains three of a kind plus a pair." 
-    },
-    "Flush": { 
-        tier: "Uncommon", 
-        tierClass: "tier-uncommon", 
-        odds: "1 in 290", 
-        score: "300 pts", 
-        desc: "Contains 5 or more cards sharing the same suit." 
-    },
-    "Digits": { 
-        tier: "Uncommon", 
-        tierClass: "tier-uncommon", 
-        odds: "1 in 223", 
-        score: "200 pts", 
-        desc: "Every card in the hand is a number card (2 through 10)." 
-    },
-    "Straight": { 
-        tier: "Uncommon", 
-        tierClass: "tier-uncommon", 
-        odds: "1 in 189", 
-        score: "200 pts", 
-        desc: "Contains 5 or more consecutive rank values." 
-    },
-    "Three of a Kind": { 
-        tier: "Uncommon", 
-        tierClass: "tier-uncommon", 
-        odds: "1 in 182", 
-        score: "200 pts", 
-        desc: "Contains three cards of matching rank." 
-    },
-    "Ace of Spades": { 
-        tier: "Common", 
-        tierClass: "tier-common", 
-        odds: "1 in 65", 
-        score: "65 pts", 
-        desc: "Bonus for holding the Ace of Spades in your hand." 
-    },
-    "Diversity": { 
-        tier: "Common", 
-        tierClass: "tier-common", 
-        odds: "1 in 52", 
-        score: "50 pts", 
-        desc: "All 7 cards in your hand have unique ranks." 
-    },
-    "Two Pair": { 
-        tier: "Common", 
-        tierClass: "tier-common", 
-        odds: "1 in 37", 
-        score: "40 pts", 
-        desc: "Contains at least 2 distinct pairs." 
-    },
-    "Prime Time": { 
-        tier: "Common", 
-        tierClass: "tier-common", 
-        odds: "1 in 22", 
-        score: "40 pts", 
-        desc: "The total numerical sum of all 7 cards adds up to a prime number." 
-    },
-    "One Pair": { 
-        tier: "Common", 
-        tierClass: "tier-common", 
-        odds: "1 in 20", 
-        score: "20 pts", 
-        desc: "Contains at least 2 cards of matching rank." 
-    }
+       const categoryMeta = {
+  "Seven Flush": {
+    tier: "Divine",
+    tierClass: "tier-divine",
+    odds: "1 in 4.18M",
+    score: "5M pts",
+    desc: "All 7 cards share the exact same suit AND form a 7-card straight."
+  },
+  "Binary": {
+    tier: "Mythic",
+    tierClass: "tier-mythic",
+    odds: "1 in 214.5K",
+    score: "2M pts",
+    desc: "The hand consists of exactly 2 unique ranks total."
+  },
+  "Three Blind Mice": {
+    tier: "Mythic",
+    tierClass: "tier-mythic",
+    odds: "1 in 168.8K",
+    score: "1.5M pts",
+    desc: "Every single card in the hand is a multiple of 3 (3, 6, or 9)."
+  },
+  "Faces": {
+    tier: "Mythic",
+    tierClass: "tier-mythic",
+    odds: "1 in 168.8K",
+    score: "1.5M pts",
+    desc: "Every card in the hand is a Jack, Queen, or King."
+  },
+  "Blackjack": {
+    tier: "Legendary",
+    tierClass: "tier-legendary",
+    odds: "1 in 164.3K",
+    score: "400K pts",
+    desc: "The sum of all card values equals 21."
+  },
+  "Kingdom": {
+    tier: "Legendary",
+    tierClass: "tier-legendary",
+    odds: "1 in 44K",
+    score: "400K pts",
+    desc: "Contains a King, Queen, and Jack of different suits with no other face cards or Aces, while the remaining cards match the fourth suit."
+  },
+  "Royal Flush": {
+    tier: "Legendary",
+    tierClass: "tier-legendary",
+    odds: "1 in 30.9K",
+    score: "300K pts",
+    desc: "Contains 10, J, Q, K, A with at least 5 of those cards matching suit."
+  },
+  "Unity": {
+    tier: "Legendary",
+    tierClass: "tier-legendary",
+    odds: "1 in 19.5K",
+    score: "200K pts",
+    desc: "All 7 cards in your hand share the exact same suit."
+  },
+  "Fibonacci": {
+    tier: "Epic",
+    tierClass: "tier-epic",
+    odds: "1 in 11.8K",
+    score: "100K pts",
+    desc: "All cards are 2, 3, 5, or 8."
+  },
+  "Aces": {
+    tier: "Epic",
+    tierClass: "tier-epic",
+    odds: "1 in 7.7K",
+    score: "70K pts",
+    desc: "Your hand contains all 4 Aces."
+  },
+  "Straight Flush": {
+    tier: "Epic",
+    tierClass: "tier-epic",
+    odds: "1 in 3.2K",
+    score: "30K pts",
+    desc: "Your hand contains 5 or more consecutive ranks and 5 or more cards of one suit."
+  },
+  "Evens / Odds": {
+    tier: "Epic",
+    tierClass: "tier-epic",
+    odds: "1 in 1.2K",
+    score: "10K pts",
+    desc: "All 7 cards are even-valued numbers OR all 7 are odd-valued numbers."
+  },
+  "Four Corners": {
+    tier: "Rare",
+    tierClass: "tier-rare",
+    odds: "1 in 776",
+    score: "7K pts",
+    desc: "Contains exactly one Ace, King, Queen, and Jack all sharing different suits with no extra face cards or Aces allowed."
+  },
+  "Four of a Kind": {
+    tier: "Rare",
+    tierClass: "tier-rare",
+    odds: "1 in 593",
+    score: "5K pts",
+    desc: "Contains four cards of matching rank."
+  },
+  "Seven": {
+    tier: "Rare",
+    tierClass: "tier-rare",
+    odds: "1 in 582",
+    score: "5K pts",
+    desc: "Contains at least 7 consecutive rank values."
+  },
+  "Checkered": {
+    tier: "Rare",
+    tierClass: "tier-rare",
+    odds: "1 in 308",
+    score: "2.5K pts",
+    desc: "Cards sorted by rank alternate perfectly between red and black with no pairs."
+  },
+  "Jack of All Trades": {
+    tier: "Rare",
+    tierClass: "tier-rare",
+    odds: "1 in 262",
+    score: "2K pts",
+    desc: "Your hand must contain a Jack for every unique suit present in your hand."
+  },
+  "Luck": {
+    tier: "Rare",
+    tierClass: "tier-rare",
+    odds: "1 in 171",
+    score: "1.5K pts",
+    desc: "Your hand contains at least three 7s."
+  },
+  "Monochromous": {
+    tier: "Rare",
+    tierClass: "tier-rare",
+    odds: "1 in 102",
+    score: "1K pts",
+    desc: "All 7 cards in the hand are entirely red or entirely black."
+  },
+  "Lovers": {
+    tier: "Uncommon",
+    tierClass: "tier-uncommon",
+    odds: "1 in 63",
+    score: "600 pts",
+    desc: "Your hand contains both the King of Hearts and the Queen of Hearts."
+  },
+  "Three Pair": {
+    tier: "Uncommon",
+    tierClass: "tier-uncommon",
+    odds: "1 in 54",
+    score: "500 pts",
+    desc: "Contains at least 3 distinct pairs."
+  },
+  "Full House": {
+    tier: "Uncommon",
+    tierClass: "tier-uncommon",
+    odds: "1 in 38",
+    score: "300 pts",
+    desc: "Contains three of a kind plus a pair."
+  },
+  "Flush": {
+    tier: "Uncommon",
+    tierClass: "tier-uncommon",
+    odds: "1 in 33",
+    score: "300 pts",
+    desc: "Contains 5 or more cards sharing the same suit."
+  },
+  "Digits": {
+    tier: "Uncommon",
+    tierClass: "tier-uncommon",
+    odds: "1 in 25",
+    score: "200 pts",
+    desc: "Every card in the hand is a number card (2 through 10)."
+  },
+  "Straight": {
+    tier: "Uncommon",
+    tierClass: "tier-uncommon",
+    odds: "1 in 22",
+    score: "200 pts",
+    desc: "Contains 5 or more consecutive rank values."
+  },
+  "Three of a Kind": {
+    tier: "Uncommon",
+    tierClass: "tier-uncommon",
+    odds: "1 in 21",
+    score: "200 pts",
+    desc: "Contains three cards of matching rank."
+  },
+  "Ace of Spades": {
+    tier: "Common",
+    tierClass: "tier-common",
+    odds: "1 in 7.43",
+    score: "65 pts",
+    desc: "Bonus for holding the Ace of Spades in your hand."
+  },
+  "Diversity": {
+    tier: "Common",
+    tierClass: "tier-common",
+    odds: "1 in 4.76",
+    score: "50 pts",
+    desc: "All 7 cards in your hand have unique ranks."
+  },
+  "Two Pair": {
+    tier: "Common",
+    tierClass: "tier-common",
+    odds: "1 in 4.26",
+    score: "40 pts",
+    desc: "Contains at least 2 distinct pairs."
+  },
+  "Prime Time": {
+    tier: "Common",
+    tierClass: "tier-common",
+    odds: "1 in 2.51",
+    score: "40 pts",
+    desc: "The total numerical sum of all 7 cards adds up to a prime number."
+  },
+  "One Pair": {
+    tier: "Common",
+    tierClass: "tier-common",
+    odds: "1 in 1.27",
+    score: "20 pts",
+    desc: "Contains at least 2 cards of matching rank."
+  }
 };
+
 
         let playedCount = 0;
         let isEvaluating = false;
