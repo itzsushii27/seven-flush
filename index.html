@@ -76,12 +76,22 @@ h1 {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1px;
-    margin-bottom: 28px;
+    margin-bottom: 12px;
     background: var(--border);
     border: 1px solid var(--border);
     border-radius: 16px;
     overflow: hidden;
     box-shadow: var(--shadow);
+}
+
+.percentile-subdisplay {
+    width: 100%;
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-bottom: 20px;
+    letter-spacing: 0.05em;
+    min-height: 1.2em;
 }
 
 .stat-box {
@@ -381,6 +391,9 @@ button:disabled {
             <div class="stat-label">Hands Dealt</div>
         </div>
     </div>
+
+    <!-- Small subtle percentile text placed right between dashboard and deck -->
+    <div class="percentile-subdisplay" id="percentileDisplay">Top 100.0% — <span class="tier-common">Common</span></div>
 
     <div class="deck-container" id="deckContainer">
         <div class="card-row" id="cardRow1">
@@ -745,6 +758,7 @@ button:disabled {
             displayedScore = 0;
             targetScore = 0;
             document.getElementById('totalScore').innerText = '0';
+            document.getElementById('percentileDisplay').innerHTML = `Top 100.0% — <span class="tier-common">Common</span>`;
             if (scoreAnimFrame) cancelAnimationFrame(scoreAnimFrame);
 
             document.getElementById('logList').innerHTML = '<li><em>Dealing cards...</em></li>';
@@ -807,6 +821,10 @@ button:disabled {
                 if (displayedScore > targetScore) displayedScore = targetScore;
                 
                 document.getElementById('totalScore').innerText = displayedScore.toLocaleString();
+                
+                let rarityInfo = getPercentileAndRarity(displayedScore);
+                document.getElementById('percentileDisplay').innerHTML = rarityInfo.text;
+
                 scoreAnimFrame = requestAnimationFrame(animateScoreToTarget);
             }
         }
