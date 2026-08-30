@@ -445,7 +445,7 @@ button:disabled {
     tier: "Divine",
     tierClass: "tier-divine",
     odds: "1 in 4.18M",
-    score: "5M pts",
+    score: "3M pts",
     desc: "All 7 cards share the exact same suit AND form a 7-card straight."
   },
   "Binary": {
@@ -459,21 +459,21 @@ button:disabled {
     tier: "Mythic",
     tierClass: "tier-mythic",
     odds: "1 in 168.8K",
-    score: "1.5M pts",
+    score: "1M pts",
     desc: "Every single card in the hand is a multiple of 3 (3, 6, or 9)."
   },
   "Faces": {
     tier: "Mythic",
     tierClass: "tier-mythic",
     odds: "1 in 168.8K",
-    score: "1.5M pts",
+    score: "1M pts",
     desc: "Every card in the hand is a Jack, Queen, or King."
   },
   "Blackjack": {
-    tier: "Legendary",
-    tierClass: "tier-legendary",
+    tier: "Mythic",
+    tierClass: "tier-mythic",
     odds: "1 in 164.3K",
-    score: "1.5M pts",
+    score: "1M pts",
     desc: "The sum of all card values equals 21."
   },
   "Kingdom": {
@@ -498,8 +498,8 @@ button:disabled {
     desc: "All 7 cards in your hand share the exact same suit."
   },
   "Fibonacci": {
-    tier: "Epic",
-    tierClass: "tier-epic",
+    tier: "Legendary",
+    tierClass: "tier-legendary",
     odds: "1 in 11.8K",
     score: "100K pts",
     desc: "All cards are 2, 3, 5, or 8."
@@ -827,19 +827,21 @@ button:disabled {
 
                         // 1. Divine Tier
             let isSevenFlush = (maxSuitCount === 7 && maxConsecutive >= 7);
-            if (isSevenFlush) matched["Seven Flush"] = { pts: 5000000, tier: "tier-divine" };
+            if (isSevenFlush) matched["Seven Flush"] = { pts: 3000000, tier: "tier-divine" };
             
             // 2. Mythic Tier
             let isThreeBlindMice = hand.every(card => ['3', '6', '9'].includes(card.rank));
-            if (isThreeBlindMice) matched["Three Blind Mice"] = { pts: 1500000, tier: "tier-mythic" };
+            if (isThreeBlindMice) matched["Three Blind Mice"] = { pts: 1000000, tier: "tier-mythic" };
 
-            if (hand.every(c => ['J', 'Q', 'K'].includes(c.rank))) matched["Faces"] = { pts: 1500000, tier: "tier-mythic" };
+            if (hand.every(c => ['J', 'Q', 'K'].includes(c.rank))) matched["Faces"] = { pts: 1000000, tier: "tier-mythic" };
             
             if (uniqueRanks === 2) matched["Binary"] = { pts: 2000000, tier: "tier-mythic" };
 
-            // 3. Legendary Tier
+
             // Blackjack: Sum equals 21 (Ace is 11)
             if (sumRanks === 21 && !hand.some(c => c.rank === 'A')) matched["Blackjack"] = { pts: 1000000, tier: "tier-legendary" };
+
+            // 3. Legendary Tier
 
             // Kingdom: King, Queen, Jack of different suits; remaining 4 match the 4th suit
             let hasK = hand.some(c => c.rank === 'K');
@@ -868,9 +870,11 @@ button:disabled {
 
             if (maxSuitCount === 7) matched["Unity"] = { pts: 200000, tier: "tier-legendary" };
 
-            // 4. Epic Tier
+
             let isFibonacci = hand.every(card => ['2', '3', '5', '8'].includes(card.rank));
             if (isFibonacci) matched["Fibonacci"] = { pts: 100000, tier: "tier-epic" };
+
+            // 4. Epic Tier
 
             if ((rankCounts['A'] || 0) >= 4) matched["Aces"] = { pts: 70000, tier: "tier-epic" };
             if (maxConsecutive >= 5 && maxSuitCount >= 5) matched["Straight Flush"] = { pts: 30000, tier: "tier-epic" };
