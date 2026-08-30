@@ -473,7 +473,7 @@ button:disabled {
     tier: "Legendary",
     tierClass: "tier-legendary",
     odds: "1 in 164.3K",
-    score: "400K pts",
+    score: "1.5M pts",
     desc: "The sum of all card values equals 21."
   },
   "Kingdom": {
@@ -839,7 +839,7 @@ button:disabled {
 
             // 3. Legendary Tier
             // Blackjack: Sum equals 21 (Ace is 11)
-            if (sumRanks === 21 && !hand.some(c => c.rank === 'A')) matched["Blackjack"] = { pts: 400000, tier: "tier-legendary" };
+            if (sumRanks === 21 && !hand.some(c => c.rank === 'A')) matched["Blackjack"] = { pts: 1000000, tier: "tier-legendary" };
 
             // Kingdom: King, Queen, Jack of different suits; remaining 4 match the 4th suit
             let hasK = hand.some(c => c.rank === 'K');
