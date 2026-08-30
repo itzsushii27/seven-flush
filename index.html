@@ -841,86 +841,163 @@ let scoreAnimFrame = null;
 function getPercentileAndRarity(score) {
 
     const benchmarks = [
-        {
-            threshold: 3539224,
-            pct: 0.000001,
-            label: "Transcendent",
-            classStyle: "tier-transcendent"
-        },
-        {
-            threshold: 3238606,
-            pct: 0.00001,
-            label: "Divine",
-            classStyle: "tier-divine"
-        },
-        {
-            threshold: 2017337,
-            pct: 0.0001,
-            label: "Mythic",
-            classStyle: "tier-mythic"
-        },
-        {
-            threshold: 1010630,
-            pct: 0.001,
-            label: "Mythic",
-            classStyle: "tier-mythic"
-        },
-        {
-            threshold: 203407,
-            pct: 0.01,
-            label: "Legendary",
-            classStyle: "tier-legendary"
-        },
-        {
-            threshold: 30653,
-            pct: 0.1,
-            label: "Epic",
-            classStyle: "tier-epic"
-        },
-        {
-            threshold: 2605,
-            pct: 1.0,
-            label: "Rare",
-            classStyle: "tier-rare"
-        },
-        {
-            threshold: 684,
-            pct: 5.0,
-            label: "Rare",
-            classStyle: "tier-rare"
-        },
-        {
-            threshold: 445,
-            pct: 10.0,
-            label: "Uncommon",
-            classStyle: "tier-uncommon"
-        },
-        {
-            threshold: 187,
-            pct: 25.0,
-            label: "Uncommon",
-            classStyle: "tier-uncommon"
-        },
-        {
-            threshold: 113,
-            pct: 50.0,
-            label: "Uncommon",
-            classStyle: "tier-uncommon"
-        },
-        {
-            threshold: 80,
-            pct: 75.0,
-            label: "Common",
-            classStyle: "tier-common"
-        },
-        {
-            threshold: 53,
-            pct: 100.0,
-            label: "Common",
-            classStyle: "tier-common"
-        }
-    ];
-
+    {
+        threshold: 3539224,
+        pct: 0.000001,
+        label: "Transcendent",
+        classStyle: "tier-transcendent"
+    },
+    {
+        threshold: 3238606,
+        pct: 0.00001,
+        label: "Divine",
+        classStyle: "tier-divine"
+    },
+    {
+        threshold: 2017337,
+        pct: 0.0001,
+        label: "Mythic",
+        classStyle: "tier-mythic"
+    },
+    {
+        threshold: 1010630,
+        pct: 0.001,
+        label: "Mythic",
+        classStyle: "tier-mythic"
+    },
+    {
+        threshold: 203407,
+        pct: 0.01,
+        label: "Legendary",
+        classStyle: "tier-legendary"
+    },
+    {
+        threshold: 30605,
+        pct: 0.05,
+        label: "Epic",
+        classStyle: "tier-epic"
+    },
+    {
+        threshold: 10760,
+        pct: 0.075,
+        label: "Epic",
+        classStyle: "tier-epic"
+    },
+    {
+        threshold: 10760,
+        pct: 0.1,
+        label: "Epic",
+        classStyle: "tier-epic"
+    },
+    {
+        threshold: 7104,
+        pct: 0.25,
+        label: "Epic",
+        classStyle: "tier-epic"
+    },
+    {
+        threshold: 3376,
+        pct: 0.5,
+        label: "Rare",
+        classStyle: "tier-rare"
+    },
+    {
+        threshold: 2605,
+        pct: 0.75,
+        label: "Rare",
+        classStyle: "tier-rare"
+    },
+    {
+        threshold: 2321,
+        pct: 1.0,
+        label: "Rare",
+        classStyle: "tier-rare"
+    },
+    {
+        threshold: 1103,
+        pct: 2.5,
+        label: "Rare",
+        classStyle: "tier-rare"
+    },
+    {
+        threshold: 671,
+        pct: 5.0,
+        label: "Rare",
+        classStyle: "tier-rare"
+    },
+    {
+        threshold: 578,
+        pct: 7.5,
+        label: "Uncommon",
+        classStyle: "tier-uncommon"
+    },
+    {
+        threshold: 437,
+        pct: 10.0,
+        label: "Uncommon",
+        classStyle: "tier-uncommon"
+    },
+    {
+        threshold: 305,
+        pct: 15.0,
+        label: "Uncommon",
+        classStyle: "tier-uncommon"
+    },
+    {
+        threshold: 268,
+        pct: 20.0,
+        label: "Uncommon",
+        classStyle: "tier-uncommon"
+    },
+    {
+        threshold: 178,
+        pct: 25.0,
+        label: "Uncommon",
+        classStyle: "tier-uncommon"
+    },
+    {
+        threshold: 145,
+        pct: 30.0,
+        label: "Common",
+        classStyle: "tier-common"
+    },
+    {
+        threshold: 137,
+        pct: 35.0,
+        label: "Common",
+        classStyle: "tier-common"
+    },
+    {
+        threshold: 119,
+        pct: 40.0,
+        label: "Common",
+        classStyle: "tier-common"
+    },
+    {
+        threshold: 108,
+        pct: 45.0,
+        label: "Common",
+        classStyle: "tier-common"
+    },
+    {
+        threshold: 104,
+        pct: 50.0,
+        label: "Common",
+        classStyle: "tier-common"
+    },
+    {
+        threshold: 80,
+        pct: 75.0,
+        label: "Common",
+        classStyle: "tier-common"
+    },
+    {
+        threshold: 53,
+        pct: 100.0,
+        label: "Common",
+        classStyle: "tier-common"
+    }
+];
     let matched = benchmarks[benchmarks.length - 1];
 
     for (let i = 0; i < benchmarks.length; i++) {
