@@ -879,6 +879,16 @@ function getPercentileAndRarity(score) {
     { threshold: 69      , pct: 90.0    , label: "Common", classStyle: "tier-common" },
     { threshold: 65      , pct: 95.0    , label: "Common", classStyle: "tier-common" },
     { threshold: 53      , pct: 100.0   , label: "Common", classStyle: "tier-common" },
+   
+    let pFormatted = parseFloat(
+    matched.pct < 0.001
+        ? matched.pct.toFixed(6)
+        : (
+            matched.pct < 1
+                ? matched.pct.toFixed(4)
+                : matched.pct.toFixed(1)
+        )
+);
 ];
     let matched = benchmarks[benchmarks.length - 1];
 
