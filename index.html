@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -409,7 +409,7 @@ button:disabled {
     </div>
 
     <div class="percentile-subdisplay" id="percentileDisplay">
-        Top 100.0% — <span class="tier-common">Common</span>
+        Top 100% — <span class="tier-common">Common</span>
     </div>
 
     <div class="deck-container" id="deckContainer">
@@ -557,12 +557,6 @@ const rankValues = {
     'A': 11
 };
 
-/*
- * IMPORTANT FIX:
- * rankOrder must exist before evaluateHandSmooth()
- * uses it for Seven Flush, Straight Flush, Seven,
- * Straight, and Checkered.
- */
 const rankOrder = {
     '2': 2,
     '3': 3,
@@ -841,47 +835,45 @@ let scoreAnimFrame = null;
 function getPercentileAndRarity(score) {
 
     const benchmarks = [
-    { threshold: 3539224 , pct: 1e-06   , label: "Transcendent", classStyle: "tier-transcendent" },
-    { threshold: 3238606 , pct: 1e-05   , label: "Divine", classStyle: "tier-divine" },
-    { threshold: 2017337 , pct: 0.0001  , label: "Mythic", classStyle: "tier-mythic" },
-    { threshold: 1010630 , pct: 0.001   , label: "Mythic", classStyle: "tier-mythic" },
-    { threshold: 331189  , pct: 0.005   , label: "Legendary", classStyle: "tier-legendary" },
-    { threshold: 203390  , pct: 0.01    , label: "Legendary", classStyle: "tier-legendary" },
-    { threshold: 10794   , pct: 0.1     , label: "Epic", classStyle: "tier-epic" },
-    { threshold: 7149    , pct: 0.2     , label: "Rare", classStyle: "tier-rare" },
-    { threshold: 5504    , pct: 0.3     , label: "Rare", classStyle: "tier-rare" },
-    { threshold: 5320    , pct: 0.4     , label: "Rare", classStyle: "tier-rare" },
-    { threshold: 3626    , pct: 0.5     , label: "Rare", classStyle: "tier-rare" },
-    { threshold: 2795    , pct: 0.6     , label: "Rare", classStyle: "tier-rare" },
-    { threshold: 2643    , pct: 0.7     , label: "Rare", classStyle: "tier-rare" },
-    { threshold: 2606    , pct: 0.8     , label: "Rare", classStyle: "tier-rare" },
-    { threshold: 2599    , pct: 0.9     , label: "Rare", classStyle: "tier-rare" },
-    { threshold: 2375    , pct: 1.0     , label: "Rare", classStyle: "tier-rare" },
-    { threshold: 1112    , pct: 2.5     , label: "Rare", classStyle: "tier-rare" },
-    { threshold: 681     , pct: 5.0     , label: "Uncommon", classStyle: "tier-uncommon" },
-    { threshold: 610     , pct: 7.5     , label: "Uncommon", classStyle: "tier-uncommon" },
-    { threshold: 443     , pct: 10.0    , label: "Uncommon", classStyle: "tier-uncommon" },
-    { threshold: 310     , pct: 15.0    , label: "Uncommon", classStyle: "tier-uncommon" },
-    { threshold: 275     , pct: 20.0    , label: "Uncommon", classStyle: "tier-uncommon" },
-    { threshold: 187     , pct: 25.0    , label: "Common", classStyle: "tier-common" },
-    { threshold: 161     , pct: 30.0    , label: "Common", classStyle: "tier-common" },
-    { threshold: 143     , pct: 35.0    , label: "Common", classStyle: "tier-common" },
-    { threshold: 133     , pct: 40.0    , label: "Common", classStyle: "tier-common" },
-    { threshold: 119     , pct: 45.0    , label: "Common", classStyle: "tier-common" },
-    { threshold: 113     , pct: 50.0    , label: "Common", classStyle: "tier-common" },
-    { threshold: 108     , pct: 55.0    , label: "Common", classStyle: "tier-common" },
-    { threshold: 105     , pct: 60.0    , label: "Common", classStyle: "tier-common" },
-    { threshold: 101     , pct: 65.0    , label: "Common", classStyle: "tier-common" },
-    { threshold: 96      , pct: 70.0    , label: "Common", classStyle: "tier-common" },
-    { threshold: 80      , pct: 75.0    , label: "Common", classStyle: "tier-common" },
-    { threshold: 75      , pct: 80.0    , label: "Common", classStyle: "tier-common" },
-    { threshold: 72      , pct: 85.0    , label: "Common", classStyle: "tier-common" },
-    { threshold: 69      , pct: 90.0    , label: "Common", classStyle: "tier-common" },
-    { threshold: 65      , pct: 95.0    , label: "Common", classStyle: "tier-common" },
-    { threshold: 53      , pct: 100.0   , label: "Common", classStyle: "tier-common" },
-       
-);
-];
+        { threshold: 3539224 , pct: 1e-06   , label: "Transcendent", classStyle: "tier-transcendent" },
+        { threshold: 3238606 , pct: 1e-05   , label: "Divine", classStyle: "tier-divine" },
+        { threshold: 2017337 , pct: 0.0001  , label: "Mythic", classStyle: "tier-mythic" },
+        { threshold: 1010630 , pct: 0.001   , label: "Mythic", classStyle: "tier-mythic" },
+        { threshold: 331189  , pct: 0.005   , label: "Legendary", classStyle: "tier-legendary" },
+        { threshold: 203390  , pct: 0.01    , label: "Legendary", classStyle: "tier-legendary" },
+        { threshold: 10794   , pct: 0.1     , label: "Epic", classStyle: "tier-epic" },
+        { threshold: 7149    , pct: 0.2     , label: "Rare", classStyle: "tier-rare" },
+        { threshold: 5504    , pct: 0.3     , label: "Rare", classStyle: "tier-rare" },
+        { threshold: 5320    , pct: 0.4     , label: "Rare", classStyle: "tier-rare" },
+        { threshold: 3626    , pct: 0.5     , label: "Rare", classStyle: "tier-rare" },
+        { threshold: 2795    , pct: 0.6     , label: "Rare", classStyle: "tier-rare" },
+        { threshold: 2643    , pct: 0.7     , label: "Rare", classStyle: "tier-rare" },
+        { threshold: 2606    , pct: 0.8     , label: "Rare", classStyle: "tier-rare" },
+        { threshold: 2599    , pct: 0.9     , label: "Rare", classStyle: "tier-rare" },
+        { threshold: 2375    , pct: 1       , label: "Rare", classStyle: "tier-rare" },
+        { threshold: 1112    , pct: 2.5     , label: "Rare", classStyle: "tier-rare" },
+        { threshold: 681     , pct: 5       , label: "Uncommon", classStyle: "tier-uncommon" },
+        { threshold: 610     , pct: 7.5     , label: "Uncommon", classStyle: "tier-uncommon" },
+        { threshold: 443     , pct: 10      , label: "Uncommon", classStyle: "tier-uncommon" },
+        { threshold: 310     , pct: 15      , label: "Uncommon", classStyle: "tier-uncommon" },
+        { threshold: 275     , pct: 20      , label: "Uncommon", classStyle: "tier-uncommon" },
+        { threshold: 187     , pct: 25      , label: "Common", classStyle: "tier-common" },
+        { threshold: 161     , pct: 30      , label: "Common", classStyle: "tier-common" },
+        { threshold: 143     , pct: 35      , label: "Common", classStyle: "tier-common" },
+        { threshold: 133     , pct: 40      , label: "Common", classStyle: "tier-common" },
+        { threshold: 119     , pct: 45      , label: "Common", classStyle: "tier-common" },
+        { threshold: 113     , pct: 50      , label: "Common", classStyle: "tier-common" },
+        { threshold: 108     , pct: 55      , label: "Common", classStyle: "tier-common" },
+        { threshold: 105     , pct: 60      , label: "Common", classStyle: "tier-common" },
+        { threshold: 101     , pct: 65      , label: "Common", classStyle: "tier-common" },
+        { threshold: 96      , pct: 70      , label: "Common", classStyle: "tier-common" },
+        { threshold: 80      , pct: 75      , label: "Common", classStyle: "tier-common" },
+        { threshold: 75      , pct: 80      , label: "Common", classStyle: "tier-common" },
+        { threshold: 72      , pct: 85      , label: "Common", classStyle: "tier-common" },
+        { threshold: 69      , pct: 90      , label: "Common", classStyle: "tier-common" },
+        { threshold: 65      , pct: 95      , label: "Common", classStyle: "tier-common" },
+        { threshold: 53      , pct: 100     , label: "Common", classStyle: "tier-common" }
+    ];
     
     let matched = benchmarks[benchmarks.length - 1];
 
@@ -894,7 +886,7 @@ function getPercentileAndRarity(score) {
 
     }
 
-    let pFormatted =
+    let rawFormatted =
         matched.pct < 0.001
             ? matched.pct.toFixed(6)
             : (
@@ -902,6 +894,9 @@ function getPercentileAndRarity(score) {
                     ? matched.pct.toFixed(4)
                     : matched.pct.toFixed(1)
             );
+
+    // Strips unnecessary trailing decimal zeroes (e.g., "100.0" -> "100", "0.1000" -> "0.1")
+    let pFormatted = rawFormatted.replace(/\.?0+$/, '');
 
     return {
         text: `Top ${pFormatted}% — <span class="${matched.classStyle}">${matched.label}</span>`,
@@ -993,7 +988,7 @@ function dealHand() {
     document.getElementById('totalScore').innerText = '0';
 
     document.getElementById('percentileDisplay').innerHTML =
-        `Top 100.0% — <span class="tier-common">Common</span>`;
+        `Top 100% — <span class="tier-common">Common</span>`;
 
     if (scoreAnimFrame) {
         cancelAnimationFrame(scoreAnimFrame);
