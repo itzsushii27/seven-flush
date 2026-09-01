@@ -1,569 +1,2772 @@
-<<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Seven Flush</title>
-  <style>
-    :root {
-      --bg-color: #0d1117;
-      --panel-bg: #161b22;
-      --accent-gold: #f1e05a;
-      --accent-red: #da3633;
-      --accent-green: #238636;
-      --accent-blue: #2f81f7;
-      --text-main: #c9d1d9;
-      --card-bg: #21262d;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-
-    body {
-      background-color: var(--bg-color);
-      color: var(--text-main);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      min-height: 100vh;
-      padding: 20px;
-    }
-
-    header {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-
-    h1 {
-      color: var(--accent-gold);
-      font-size: 2.5rem;
-      letter-spacing: 2px;
-    }
-
-    .nav-tabs {
-      display: flex;
-      gap: 10px;
-      margin-top: 15px;
-    }
-
-    .tab-btn {
-      background: var(--panel-bg);
-      border: 1px solid #30363d;
-      color: var(--text-main);
-      padding: 10px 20px;
-      cursor: pointer;
-      border-radius: 6px;
-      font-weight: bold;
-      transition: all 0.2s;
-    }
-
-    .tab-btn.active, .tab-btn:hover {
-      background: var(--accent-blue);
-      color: #fff;
-    }
-
-    .mode-panel {
-      width: 100%;
-      max-width: 900px;
-      background: var(--panel-bg);
-      border-radius: 10px;
-      padding: 20px;
-      border: 1px solid #30363d;
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    /* Combat & Health Bars */
-    .combat-arena {
-      display: flex;
-      flex-direction: column;
-      gap: 20px;
-      margin-bottom: 20px;
-    }
-
-    .hp-container {
-      background: #090d11;
-      border: 2px solid #30363d;
-      border-radius: 8px;
-      padding: 15px;
-      transition: opacity 0.4s ease, transform 0.4s ease;
-      opacity: 0.3;
-      transform: scale(0.98);
-    }
-
-    .hp-container.active-target {
-      opacity: 1;
-      transform: scale(1);
-      border-color: var(--accent-gold);
-      box-shadow: 0 0 15px rgba(241, 224, 90, 0.2);
-    }
-
-    .hp-header {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 8px;
-      font-weight: bold;
-    }
-
-    .hp-bar-bg {
-      width: 100%;
-      height: 20px;
-      background: #21262d;
-      border-radius: 10px;
-      overflow: hidden;
-    }
-
-    .hp-bar-fill {
-      height: 100%;
-      width: 100%;
-      transition: width 0.3s ease;
-    }
-
-    .player-fill { background: var(--accent-green); }
-    .boss-fill { background: var(--accent-red); }
-
-    /* Foundations */
-    .foundations {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 10px;
-      margin-bottom: 20px;
-    }
-
-    .foundation-card {
-      background: var(--card-bg);
-      border: 1px solid #30363d;
-      border-radius: 6px;
-      padding: 10px;
-      text-align: center;
-    }
-
-    .foundation-card .suit { font-size: 1.5rem; }
-    .suit-hearts { color: #f85149; }
-    .suit-diamonds { color: #f85149; }
-    .suit-spades { color: #c9d1d9; }
-    .suit-clubs { color: #c9d1d9; }
-
-    /* Card Deck / Hand Display */
-    .hand-display {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      margin: 20px 0;
-      min-height: 110px;
-    }
-
-    .card {
-      width: 70px;
-      height: 100px;
-      background: var(--card-bg);
-      border: 2px solid #30363d;
-      border-radius: 6px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      padding: 8px;
-      font-weight: bold;
-      cursor: pointer;
-      user-select: none;
-      transition: transform 0.2s;
-    }
-
-    .card:hover { transform: translateY(-5px); }
-    .card.selected { border-color: var(--accent-gold); transform: translateY(-10px); }
-
-    /* Shop & Actions */
-    .controls {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-      margin-top: 15px;
-    }
-
-    .btn {
-      background: var(--accent-blue);
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 6px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    .btn:hover { opacity: 0.9; }
-    .btn-danger { background: var(--accent-red); }
-
-    /* Modal / Stats Overlay */
-    .modal {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.85);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 1000;
-    }
-
-    .modal-content {
-      background: var(--panel-bg);
-      border: 2px solid var(--accent-gold);
-      border-radius: 10px;
-      padding: 30px;
-      width: 90%;
-      max-width: 450px;
-      text-align: center;
-    }
-
-    .stat-row {
-      display: flex;
-      justify-content: space-between;
-      padding: 10px 0;
-      border-bottom: 1px solid #30363d;
-    }
-
-    .stat-value {
-      font-weight: bold;
-      color: var(--accent-gold);
-    }
-  </style>
-</head>
-<body>
-
-  <header>
-    <h1>SEVEN FLUSH</h1>
-    <div class="nav-tabs">
-      <button class="tab-btn active" onclick="switchMode('classicMode')">Classic Mode</button>
-      <button class="tab-btn" onclick="switchMode('roguelikeMode')">Roguelike Mode</button>
-    </div>
-  </header>
-
-  <!-- Classic Mode Panel -->
-  <div id="classicMode" class="mode-panel">
-    <h2>Classic 7-Card Score Challenge</h2>
-    <p style="margin-top: 10px;">Select cards to build the highest scoring combination possible!</p>
-    <div id="classicHand" class="hand-display"></div>
-    <div class="controls">
-      <button class="btn" onclick="dealClassicHand()">Deal New Hand</button>
-    </div>
-    <div id="classicScore" style="margin-top: 20px; font-size: 1.2rem; text-align: center;"></div>
-  </div>
-
-  <!-- Roguelike Mode Panel (Fixed ID Mismatch) -->
-  <div id="roguelikeMode" class="mode-panel hidden">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seven Flush</title>
     
-    <!-- Combat Arenas (Dynamic Health Display) -->
-    <div class="combat-arena">
-      <!-- Boss Health Container -->
-      <div id="bossHpContainer" class="hp-container active-target">
-        <div class="hp-header">
-          <span id="bossName">Boss (Stage 1)</span>
-          <span id="bossHpText">500 / 500 HP</span>
-        </div>
-        <div class="hp-bar-bg">
-          <div id="bossHpBar" class="hp-bar-fill boss-fill" style="width: 100%;"></div>
-        </div>
-      </div>
+<style>
+:root {
+    --bg: #090b10;
+    --panel: #11151d;
+    --panel-2: #171c26;
+    --border: #27303d;
+    --text: #f4f6fa;
+    --muted: #7f8a9b;
+    --gold: #f4c95d;
+    --gold-bright: #ffe08a;
+    --green: #61d095;
+    --shadow: 0 18px 50px rgba(0,0,0,.35);
+}
 
-      <!-- Player Health Container -->
-      <div id="playerHpContainer" class="hp-container">
-        <div class="hp-header">
-          <span>Player</span>
-          <span id="playerHpText">100 / 100 HP</span>
-        </div>
-        <div class="hp-bar-bg">
-          <div id="playerHpBar" class="hp-bar-fill player-fill" style="width: 100%;"></div>
-        </div>
-      </div>
+* { box-sizing: border-box; }
+
+body {
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+        "Segoe UI", sans-serif;
+    background:
+        radial-gradient(circle at 50% 8%, rgba(244,201,93,.09), transparent 34%),
+        linear-gradient(180deg, #0b0e14 0%, var(--bg) 100%);
+    color: var(--text);
+    min-height: 100vh;
+    margin: 0;
+    padding: 32px 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.game-shell {
+    width: min(760px, 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+h1 {
+    color: var(--text);
+    font-size: clamp(2rem, 7vw, 3rem);
+    letter-spacing: .16em;
+    line-height: 1;
+    margin: 0;
+    font-weight: 850;
+    text-align: center;
+}
+
+.eyebrow {
+    color: var(--gold);
+    font-size: .65rem;
+    font-weight: 850;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    margin-bottom: 9px;
+    opacity: .9;
+}
+
+.subtitle {
+    color: var(--muted);
+    font-size: .9rem;
+    margin: 10px 0 30px;
+    text-align: center;
+}
+
+.dashboard {
+    width: min(560px, 100%);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    margin-bottom: 12px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: var(--shadow);
+}
+
+.percentile-subdisplay {
+    width: 100%;
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--muted);
+    margin-bottom: 20px;
+    letter-spacing: 0.05em;
+    min-height: 1.2em;
+}
+
+.stat-box {
+    background: linear-gradient(180deg, var(--panel-2), var(--panel));
+    text-align: center;
+    padding: 17px 20px;
+}
+
+.stat-value {
+    font-size: clamp(1.45rem, 5vw, 2rem);
+    line-height: 1.1;
+    font-weight: 800;
+    color: var(--gold-bright);
+    font-variant-numeric: tabular-nums;
+}
+
+.stat-label {
+    margin-top: 6px;
+    font-size: .68rem;
+    letter-spacing: .12em;
+    color: var(--muted);
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+.deck-container {
+    width: 100%;
+    min-height: 220px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 28px;
+    align-items: center;
+    justify-content: center;
+    padding: 20px 14px;
+    border: 1px solid rgba(39,48,61,.75);
+    border-radius: 18px;
+    background: linear-gradient(180deg, rgba(23,28,38,.78), rgba(13,17,24,.65));
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.025), 0 16px 35px rgba(0,0,0,.2);
+}
+
+.card-row {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+.card {
+    width: clamp(58px, 12vw, 78px);
+    height: clamp(84px, 17vw, 108px);
+    background: linear-gradient(145deg, #ffffff 0%, #f0f2f5 100%);
+    color: #11151d;
+    border: 1px solid rgba(255,255,255,.65);
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 7px 8px;
+    font-weight: 800;
+    font-size: clamp(.82rem, 2.4vw, 1rem);
+    box-shadow: 0 8px 18px rgba(0,0,0,.3);
+    transition: transform .25s ease, opacity .25s ease, background .25s ease, box-shadow .18s ease;
+}
+
+.card.facedown {
+    background: linear-gradient(145deg, #1f2735 0%, #11151d 100%);
+    color: transparent;
+    border: 1px solid var(--border);
+    transform: rotateY(90deg) scale(0.95);
+    opacity: 0.4;
+}
+
+.card:not(.facedown):hover {
+    transform: translateY(-5px);
+    box-shadow: 0 14px 24px rgba(0,0,0,.35);
+}
+
+.card.red { color: #d7354a; }
+
+.card-top { align-self: flex-start; }
+
+.card-center {
+    align-self: center;
+    font-size: clamp(1.35rem, 4vw, 1.8rem);
+}
+
+.card-bottom {
+    align-self: flex-end;
+    transform: rotate(180deg);
+}
+
+.button-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+button {
+    appearance: none;
+    background: linear-gradient(135deg, var(--gold-bright), var(--gold));
+    color: #17130a;
+    border: 0;
+    min-width: 180px;
+    padding: 14px 24px;
+    font-size: .95rem;
+    letter-spacing: .1em;
+    font-weight: 850;
+    border-radius: 12px;
+    cursor: pointer;
+    box-shadow: 0 10px 25px rgba(244,201,93,.16);
+    transition: transform .15s ease, filter .15s ease, box-shadow .15s ease;
+}
+
+button.secondary-btn {
+    background: linear-gradient(135deg, var(--panel-2), var(--panel));
+    color: var(--gold-bright);
+    border: 1px solid var(--border);
+    box-shadow: 0 10px 25px rgba(0,0,0,.2);
+}
+
+button:hover {
+    filter: brightness(1.06);
+    transform: translateY(-2px);
+    box-shadow: 0 14px 30px rgba(244,201,93,.22);
+}
+
+button.secondary-btn:hover {
+    border-color: var(--gold);
+    box-shadow: 0 14px 30px rgba(0,0,0,.3);
+}
+
+button:active { transform: translateY(1px); }
+
+button:disabled {
+    background: #2a303a;
+    color: #697384;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+    filter: none;
+}
+
+.log-container {
+    width: min(560px, 100%);
+    background: rgba(17,21,29,.92);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 17px 18px;
+    max-height: 220px;
+    overflow-y: auto;
+    box-shadow: var(--shadow);
+}
+
+.log-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: .72rem;
+    letter-spacing: .12em;
+    color: var(--muted);
+    text-transform: uppercase;
+    font-weight: 800;
+    margin-bottom: 10px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 11px;
+}
+
+.log-title::before {
+    content: "";
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 10px rgba(97,208,149,.55);
+}
+
+.log-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    font-size: .88rem;
+}
+
+.log-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 9px 6px;
+    border-bottom: 1px solid rgba(39,48,61,.55);
+    animation: fadeIn .35s ease-out;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background 0.2s;
+}
+
+.log-list li:hover {
+    background: rgba(255,255,255,.04);
+}
+
+.log-list li:last-child { border-bottom: 0; }
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.tier-common { color: #aab2bf; }
+.tier-uncommon { color: #61d095; }
+.tier-rare { color: #63a9ff; }
+.tier-epic { color: #b78cff; }
+.tier-legendary { color: #ffb65c; }
+.tier-mythic { color: #ff6e9a; }
+
+.tier-transcendent {
+    color: #ffffff;
+    font-weight: 900;
+    text-shadow: 0 0 12px rgba(255,255,255,0.6);
+}
+
+.tier-divine {
+    color: var(--gold-bright);
+    font-weight: 800;
+    text-shadow: 0 0 10px rgba(244,201,93,.25);
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+}
+
+.modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.modal {
+    background: var(--panel-2);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    width: min(420px, 90%);
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: var(--shadow);
+    text-align: left;
+}
+
+.modal h3 {
+    margin-top: 0;
+    color: var(--gold-bright);
+    font-size: 1.25rem;
+    margin-bottom: 12px;
+}
+
+.modal p {
+    margin: 8px 0;
+    font-size: 0.9rem;
+    color: var(--text);
+    line-height: 1.4;
+}
+
+.modal .modal-label {
+    color: var(--muted);
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    margin-top: 12px;
+    font-weight: 700;
+}
+
+.modal button.close-modal {
+    margin-top: 20px;
+    width: 100%;
+    min-width: 0;
+    padding: 10px;
+    font-size: 0.85rem;
+}
+
+.mode-select{display:flex;gap:10px;justify-content:center;margin-bottom:18px;flex-wrap:wrap}.mode-select button{min-width:150px}.mode-select button.active{outline:2px solid var(--gold-bright);outline-offset:2px}.mode-panel{width:100%}.hidden{display:none!important}.rogue-shell{width:min(900px,100%)}.rogue-header{position:relative;width:100%;min-height:128px;margin-bottom:14px}.rogue-dashboard{width:calc(100% - 330px);min-height:112px;margin:0}.rogue-dashboard .stat-box{padding:13px 10px}.rogue-dashboard .stat-value{font-size:clamp(1.2rem,4vw,1.65rem)}.foundations{position:absolute;top:0;right:0;width:310px;display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:0}.foundation-card{position:relative;height:112px;background:linear-gradient(145deg,#fff 0%,#e9edf2 100%);color:#171a20;border:1px solid rgba(255,255,255,.7);border-radius:10px;padding:7px;box-shadow:0 8px 18px rgba(0,0,0,.3);cursor:pointer;outline:none;transition:transform .15s ease,box-shadow .15s ease}.foundation-card:hover,.foundation-card:focus-visible{transform:translateY(-4px);box-shadow:0 13px 25px rgba(0,0,0,.4);z-index:5}.foundation-card.hearts,.foundation-card.diamonds{color:#c52e45}.foundation-card.spades,.foundation-card.clubs{color:#171a20}.foundation-card-corner{display:flex;flex-direction:column;align-items:flex-start;font-size:.72rem;line-height:1}.foundation-card-corner strong{font-size:1rem;margin-top:2px}.foundation-card-center{text-align:center;font-size:2rem;line-height:1;margin-top:14px}.foundation-card-label{position:absolute;bottom:7px;left:0;right:0;text-align:center;font-size:.48rem;letter-spacing:.09em;font-weight:900}.foundation-tooltip{position:absolute;left:50%;top:calc(100% + 8px);transform:translateX(-50%) translateY(-3px);width:170px;padding:10px;border:1px solid var(--border);border-radius:10px;background:rgba(12,15,21,.98);color:var(--text);box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:opacity .12s ease,transform .12s ease;text-align:center;z-index:20}.foundation-card:hover .foundation-tooltip,.foundation-card:focus-visible .foundation-tooltip,.foundation-card.tooltip-open .foundation-tooltip{opacity:1;transform:translateX(-50%) translateY(0)}.foundation-tooltip strong,.foundation-tooltip span,.foundation-tooltip small{display:block}.foundation-tooltip strong{font-size:.75rem}.foundation-tooltip span{font-size:1rem;font-weight:850;color:var(--gold-bright);margin-top:3px}.foundation-tooltip small{font-size:.62rem;color:var(--muted);margin-top:3px}.boss-panel{width:100%;border:1px solid var(--border);border-radius:18px;background:linear-gradient(180deg,rgba(23,28,38,.9),rgba(13,17,24,.8));padding:15px;margin-bottom:14px}.hp-row{display:flex;justify-content:space-between;gap:12px;font-weight:800}.hp-bar{height:12px;border-radius:999px;background:#252b35;overflow:hidden;margin:8px 0 12px}.hp-fill{height:100%;width:100%;background:var(--gold);transition:width .25s ease}.boss-cards{min-height:115px;display:flex;align-items:center;justify-content:center;gap:8px;opacity:.8}.boss-result{text-align:center;color:var(--muted);font-size:.8rem;min-height:1.2em}.shop{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}.shop-card{background:linear-gradient(180deg,var(--panel-2),var(--panel));border:1px solid var(--border);border-radius:14px;padding:13px}.shop-card h3{margin:0 0 6px;font-size:.9rem}.shop-card p{margin:4px 0 10px;color:var(--muted);font-size:.75rem;line-height:1.35}.shop-card button{width:100%;min-width:0;padding:10px;font-size:.78rem}.pack-choice{display:grid;grid-template-columns:repeat(4,1fr);gap:7px}.pack-choice button{min-width:0;padding:9px 4px;font-size:.72rem}.pack-choice button.selected{outline:2px solid var(--gold-bright)}.reward-log{max-height:150px}
+
+/* Focusable Health Containers */
+.hp-container {
+    padding: 8px 12px;
+    border-radius: 10px;
+    margin-bottom: 8px;
+    background: rgba(0,0,0,0.2);
+    border: 1px solid transparent;
+    opacity: 0.4;
+    transition: all 0.3s ease;
+}
+.hp-container.active-target {
+    opacity: 1;
+    border-color: var(--gold);
+    box-shadow: 0 0 12px rgba(244,201,93,0.25);
+    background: rgba(244,201,93,0.05);
+}
+
+@media(max-width:700px){.rogue-header{min-height:0}.rogue-dashboard{width:100%;margin-bottom:10px}.foundations{position:static;width:100%;grid-template-columns:repeat(4,1fr)}.foundation-card{height:105px}.shop{grid-template-columns:1fr}.pack-choice{grid-template-columns:repeat(2,1fr)}}@media(max-width:420px){.rogue-dashboard{grid-template-columns:repeat(2,1fr)}.foundation-card{height:100px}.foundation-card-center{font-size:1.7rem}}
+</style>
+</head>
+
+<body>
+<div class="mode-select"><button id="classicModeBtn" class="secondary-btn active" onclick="switchMode('classic')">CLASSIC MODE</button><button id="rogueModeBtn" class="secondary-btn" onclick="switchMode('roguelike')">ROGUELIKE MODE</button></div>
+<div id="classicMode" class="mode-panel"><div class="game-shell">
+
+    <div class="eyebrow">7-CARD SCORE CHALLENGE</div>
+    <h1>SEVEN FLUSH</h1>
+    <div class="subtitle">
+        Push button, watch bonuses roll in. Cascading hands count together!
     </div>
 
-    <!-- Suit Foundations -->
-    <div class="foundations">
-      <div class="foundation-card">
-        <div class="suit suit-hearts">♥</div>
-        <small>Hearts: Heal</small>
-        <div id="heartsBonus">+0%</div>
-      </div>
-      <div class="foundation-card">
-        <div class="suit suit-diamonds">♦</div>
-        <small>Diamonds: Coins</small>
-        <div id="diamondsBonus">+0%</div>
-      </div>
-      <div class="foundation-card">
-        <div class="suit suit-spades">♠</div>
-        <small>Spades: Dmg Mult</small>
-        <div id="spadesBonus">x1.0</div>
-      </div>
-      <div class="foundation-card">
-        <div class="suit suit-clubs">♣</div>
-        <small>Clubs: Luck</small>
-        <div id="clubsBonus">+0%</div>
-      </div>
+    <div class="dashboard">
+        <div class="stat-box">
+            <div class="stat-value" id="totalScore">0</div>
+            <div class="stat-label">Total Score</div>
+        </div>
+
+        <div class="stat-box">
+            <div class="stat-value" id="handsPlayed">0</div>
+            <div class="stat-label">Hands Dealt</div>
+        </div>
     </div>
 
-    <!-- Gameplay Area -->
-    <div id="rogueHand" class="hand-display"></div>
-
-    <div class="controls">
-      <button class="btn" onclick="playRogueHand()">Attack Boss</button>
-      <button class="btn btn-danger" onclick="buyTicket()">Buy Ticket (Cost: 500 Coins)</button>
+    <div class="percentile-subdisplay" id="percentileDisplay">
+        Top 100% — <span class="tier-common">Common</span>
     </div>
 
-    <div style="margin-top: 15px; display: flex; justify-content: space-between; align-items: center;">
-      <div>Coins: <span id="coinDisplay" style="color: var(--accent-gold); font-weight: bold;">0</span></div>
-      <div>Tickets Owned: <span id="ticketDisplay" style="color: var(--accent-blue); font-weight: bold;">0</span></div>
+    <div class="deck-container" id="deckContainer">
+
+        <div class="card-row" id="cardRow1">
+            <div class="card facedown">
+                <span class="card-top">?</span>
+                <span class="card-center">🂠</span>
+                <span class="card-bottom">?</span>
+            </div>
+
+            <div class="card facedown">
+                <span class="card-top">?</span>
+                <span class="card-center">🂠</span>
+                <span class="card-bottom">?</span>
+            </div>
+
+            <div class="card facedown">
+                <span class="card-top">?</span>
+                <span class="card-center">🂠</span>
+                <span class="card-bottom">?</span>
+            </div>
+
+            <div class="card facedown">
+                <span class="card-top">?</span>
+                <span class="card-center">🂠</span>
+                <span class="card-bottom">?</span>
+            </div>
+        </div>
+
+        <div class="card-row" id="cardRow2">
+            <div class="card facedown">
+                <span class="card-top">?</span>
+                <span class="card-center">🂠</span>
+                <span class="card-bottom">?</span>
+            </div>
+
+            <div class="card facedown">
+                <span class="card-top">?</span>
+                <span class="card-center">🂠</span>
+                <span class="card-bottom">?</span>
+            </div>
+
+            <div class="card facedown">
+                <span class="card-top">?</span>
+                <span class="card-center">🂠</span>
+                <span class="card-bottom">?</span>
+            </div>
+        </div>
+
     </div>
+
+    <div class="button-row">
+        <button id="dealBtn" onclick="dealHand()">DEAL HAND</button>
+        <button class="secondary-btn" onclick="openAllCategoriesModal()">
+            ALL CATEGORIES
+        </button>
+    </div>
+
+    <div class="log-container">
+        <div class="log-title">Triggered Categories</div>
+
+        <ul class="log-list" id="logList">
+            <li><em>Ready to deal...</em></li>
+        </ul>
+    </div>
+
+</div>
+
+</div></div>
+<!-- Fixed HTML ID mismatch from rogueLike Mode to roguelikeMode -->
+<div id="roguelikeMode" class="mode-panel hidden"><div class="game-shell rogue-shell">
+<div class="rogue-header">
+  <div class="dashboard rogue-dashboard">
+    <div class="stat-box"><div class="stat-value" id="rScore">0</div><div class="stat-label">Hand Score</div></div>
+    <div class="stat-box"><div class="stat-value" id="rCoins">0</div><div class="stat-label">Coins</div></div>
+    <div class="stat-box"><div class="stat-value" id="rHp">1000 / 1000</div><div class="stat-label">HP</div></div>
+    <div class="stat-box"><div class="stat-value" id="rHand">0 / 5</div><div class="stat-label">Phase Hands</div></div>
   </div>
-
-  <!-- End of Run Stats Modal -->
-  <div id="endRunModal" class="modal hidden">
-    <div class="modal-content">
-      <h2 id="modalTitle" style="color: var(--accent-gold); margin-bottom: 20px;">Run Ended</h2>
-      
-      <div class="stat-row">
-        <span>Bosses Beat:</span>
-        <span id="statBosses" class="stat-value">0</span>
-      </div>
-      <div class="stat-row">
-        <span>Total Damage Dealt:</span>
-        <span id="statDamage" class="stat-value">0</span>
-      </div>
-      <div class="stat-row">
-        <span>Total Coins Earned:</span>
-        <span id="statCoins" class="stat-value">0</span>
-      </div>
-
-      <button class="btn" style="margin-top: 25px; width: 100%;" onclick="resetRoguelikeRun()">Play Again</button>
-    </div>
+  <div class="foundations">
+    <div class="foundation-card hearts" tabindex="0" data-suit="♥"><div class="foundation-card-corner"><span>♥</span><strong id="fHeartRank">2</strong></div><div class="foundation-card-center">♥</div><div class="foundation-card-label">HEAL</div><div class="foundation-tooltip"><strong>♥ Healing</strong><span id="fHeartStat">25%</span><small id="fHeartNext">Pack: 100</small></div></div>
+    <div class="foundation-card diamonds" tabindex="0" data-suit="♦"><div class="foundation-card-corner"><span>♦</span><strong id="fDiamondRank">2</strong></div><div class="foundation-card-center">♦</div><div class="foundation-card-label">COINS</div><div class="foundation-tooltip"><strong>♦ Coins</strong><span id="fDiamondStat">25%</span><small id="fDiamondNext">Pack: 100</small></div></div>
+    <div class="foundation-card spades" tabindex="0" data-suit="♠"><div class="foundation-card-corner"><span>♠</span><strong id="fSpadeRank">2</strong></div><div class="foundation-card-center">♠</div><div class="foundation-card-label">DAMAGE</div><div class="foundation-tooltip"><strong>♠ Damage</strong><span id="fSpadeStat">1.0×</span><small id="fSpadeNext">Pack: 100</small></div></div>
+    <div class="foundation-card clubs" tabindex="0" data-suit="♣"><div class="foundation-card-corner"><span>♣</span><strong id="fClubRank">2</strong></div><div class="foundation-card-center">♣</div><div class="foundation-card-label">LUCK</div><div class="foundation-tooltip"><strong>♣ Luck</strong><span id="fClubStat">25%</span><small id="fClubNext">Pack: 100</small></div></div>
   </div>
+</div>
+<div class="deck-container" id="rDeckContainer"><div class="card-row" id="rCardRow1"></div><div class="card-row" id="rCardRow2"></div></div>
 
-  <script>
-    // Constant definition
-    const TICKET_VALUE = 500;
+<!-- Combat Area with Dynamic Health Focus -->
+<div class="boss-panel hidden" id="bossPanel">
+  <div id="bossHpContainer" class="hp-container active-target">
+    <div class="hp-row"><span id="bossName">Boss 1</span><span id="bossHpText">500 / 500 HP</span></div>
+    <div class="hp-bar"><div class="hp-fill" id="bossHpFill"></div></div>
+  </div>
+  <div id="playerHpContainer" class="hp-container">
+    <div class="hp-row"><span>Player</span><span id="playerHpText">1000 / 1000 HP</span></div>
+    <div class="hp-bar"><div class="hp-fill" id="playerHpFill" style="background: var(--green);"></div></div>
+  </div>
+  <div class="boss-cards" id="bossCards"></div>
+  <div class="boss-result" id="bossResult"></div>
+</div>
 
-    // Run Stats Tracking
-    let runStats = {
-      totalDamageDealt: 0,
-      bossesBeat: 0,
-      coinsEarned: 0
+<div class="button-row"><button id="rActionBtn" onclick="rogueDealHand()">DEAL HAND</button></div><span id="rEarned" class="hidden">0</span>
+<div class="shop hidden" id="rogueShop"><div class="shop-card"><h3>Pack</h3><p>Choose one suit. You can buy only one pack this shop.</p><div class="pack-choice"><button id="buyHeart" onclick="selectRoguePack('♥')">♥ 100</button><button id="buyDiamond" onclick="selectRoguePack('♦')">♦ 100</button><button id="buySpade" onclick="selectRoguePack('♠')">♠ 100</button><button id="buyClub" onclick="selectRoguePack('♣')">♣ 100</button></div><button id="buyPackBtn" class="secondary-btn" onclick="buyRoguePack()" disabled>BUY PACK</button><button id="skipShopBtn" class="secondary-btn" onclick="skipRogueShop()">CONTINUE WITHOUT A PACK</button></div><div class="shop-card"><h3>Pack Guarantee Ticket</h3><p>Buy this first to guarantee your one pack succeeds. Fixed price: 500 coins.</p><button id="buyTicketBtn" onclick="buyGuaranteeTicket()">BUY TICKET — 500</button></div></div>
+<div class="log-container reward-log"><div class="log-title">Run Log</div><ul class="log-list" id="rogueLog"><li><em>Choose Roguelike Mode to begin.</em></li></ul></div></div></div>
+
+<!-- Detail Modal -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal()">
+    <div class="modal" onclick="event.stopPropagation()">
+
+        <h3 id="modalTitle">Bonus Name</h3>
+
+        <div class="modal-label">Rarity / Tier</div>
+        <p id="modalTier">Common</p>
+
+        <div class="modal-label">Odds</div>
+        <p id="modalOdds">1 in X</p>
+
+        <div class="modal-label">Trigger Condition</div>
+        <p id="modalTrigger">Description of what triggers this bonus.</p>
+
+        <button class="close-modal" onclick="closeModal()">Got it</button>
+
+    </div>
+</div>
+
+<!-- All Categories Modal -->
+<div class="modal-overlay"
+     id="allCategoriesModalOverlay"
+     onclick="closeAllCategoriesModal()">
+
+    <div class="modal" onclick="event.stopPropagation()">
+
+        <h3>All Categories & Odds</h3>
+
+        <div class="modal-label">
+            Click any category to view details
+        </div>
+
+        <ul class="log-list"
+            id="allCatList"
+            style="margin-top: 12px;">
+        </ul>
+
+        <button class="close-modal"
+                onclick="closeAllCategoriesModal()">
+            Close
+        </button>
+
+    </div>
+</div>
+
+<!-- End-of-Run Stats Modal -->
+<div class="modal-overlay" id="rogueStatsModalOverlay" onclick="closeRogueStatsModal()">
+    <div class="modal" onclick="event.stopPropagation()">
+        <h3 style="color:var(--gold-bright);">Run Summary</h3>
+
+        <div class="modal-label">Bosses Defeated</div>
+        <p id="statBossesBeat" style="font-size:1.3rem; font-weight:800; color:var(--gold);">0</p>
+
+        <div class="modal-label">Total Damage Dealt</div>
+        <p id="statTotalDamage" style="font-size:1.3rem; font-weight:800; color:var(--gold);">0</p>
+
+        <div class="modal-label">Total Coins Earned</div>
+        <p id="statTotalCoins" style="font-size:1.3rem; font-weight:800; color:var(--gold);">0</p>
+
+        <button class="close-modal" onclick="closeRogueStatsModal()">Play Again</button>
+    </div>
+</div>
+
+<script>
+
+const suits = ['♠', '♥', '♦', '♣'];
+
+const suitColors = {
+    '♠': 'black',
+    '♣': 'black',
+    '♥': 'red',
+    '♦': 'red'
+};
+
+const ranks = [
+    '2', '3', '4', '5', '6', '7', '8',
+    '9', '10', 'J', 'Q', 'K', 'A'
+];
+
+const rankValues = {
+    '2': 2,
+    '3': 3,
+    '4': 4,
+    '5': 5,
+    '6': 6,
+    '7': 7,
+    '8': 8,
+    '9': 9,
+    '10': 10,
+    'J': 10,
+    'Q': 10,
+    'K': 10,
+    'A': 11
+};
+
+const rankOrder = {
+    '2': 2,
+    '3': 3,
+    '4': 4,
+    '5': 5,
+    '6': 6,
+    '7': 7,
+    '8': 8,
+    '9': 9,
+    '10': 10,
+    'J': 11,
+    'Q': 12,
+    'K': 13,
+    'A': 14
+};
+
+const categoryMeta = {
+
+    "Seven Flush": {
+        tier: "Divine",
+        tierClass: "tier-divine",
+        odds: "1 in 4.18M",
+        score: "3M pts",
+        desc: "All 7 cards share the exact same suit AND form a 7-card straight."
+    },
+
+    "Binary": {
+        tier: "Mythic",
+        tierClass: "tier-mythic",
+        odds: "1 in 214.5K",
+        score: "2M pts",
+        desc: "The hand consists of exactly 2 unique ranks total."
+    },
+
+    "Three Blind Mice": {
+        tier: "Mythic",
+        tierClass: "tier-mythic",
+        odds: "1 in 168.8K",
+        score: "1M pts",
+        desc: "Every single card in the hand is a multiple of 3 (3, 6, or 9)."
+    },
+
+    "Faces": {
+        tier: "Mythic",
+        tierClass: "tier-mythic",
+        odds: "1 in 168.8K",
+        score: "1M pts",
+        desc: "Every card in the hand is a Jack, Queen, or King."
+    },
+
+    "Blackjack": {
+        tier: "Mythic",
+        tierClass: "tier-mythic",
+        odds: "1 in 164.3K",
+        score: "1M pts",
+        desc: "The sum of all card values equals 21."
+    },
+
+    "Kingdom": {
+        tier: "Legendary",
+        tierClass: "tier-legendary",
+        odds: "1 in 44K",
+        score: "400K pts",
+        desc: "Contains a King, Queen, and Jack of different suits with no other face cards or Aces, while the remaining cards match the fourth suit."
+    },
+
+    "Royal Flush": {
+        tier: "Legendary",
+        tierClass: "tier-legendary",
+        odds: "1 in 30.9K",
+        score: "300K pts",
+        desc: "Contains 10, J, Q, K, A with at least 5 of those cards matching suit."
+    },
+
+    "Unity": {
+        tier: "Legendary",
+        tierClass: "tier-legendary",
+        odds: "1 in 19.5K",
+        score: "200K pts",
+        desc: "All 7 cards in your hand share the exact same suit."
+    },
+
+    "Fibonacci": {
+        tier: "Legendary",
+        tierClass: "tier-legendary",
+        odds: "1 in 11.8K",
+        score: "100K pts",
+        desc: "All cards are 2, 3, 5, or 8."
+    },
+
+    "Aces": {
+        tier: "Epic",
+        tierClass: "tier-epic",
+        odds: "1 in 7.7K",
+        score: "70K pts",
+        desc: "Your hand contains all 4 Aces."
+    },
+
+    "Straight Flush": {
+        tier: "Epic",
+        tierClass: "tier-epic",
+        odds: "1 in 3.2K",
+        score: "30K pts",
+        desc: "Your hand contains 5 or more consecutive ranks and 5 or more cards of one suit."
+    },
+
+    "Evens / Odds": {
+        tier: "Epic",
+        tierClass: "tier-epic",
+        odds: "1 in 1.2K",
+        score: "10K pts",
+        desc: "All 7 cards are even-valued numbers OR all 7 are odd-valued numbers."
+    },
+
+    "Four Corners": {
+        tier: "Rare",
+        tierClass: "tier-rare",
+        odds: "1 in 776",
+        score: "7K pts",
+        desc: "Contains exactly one Ace, King, Queen, and Jack all sharing different suits with no extra face cards or Aces allowed."
+    },
+
+    "Four of a Kind": {
+        tier: "Rare",
+        tierClass: "tier-rare",
+        odds: "1 in 593",
+        score: "5K pts",
+        desc: "Contains four cards of matching rank."
+    },
+
+    "Seven": {
+        tier: "Rare",
+        tierClass: "tier-rare",
+        odds: "1 in 582",
+        score: "5K pts",
+        desc: "Contains at least 7 consecutive rank values."
+    },
+
+    "Checkered": {
+        tier: "Rare",
+        tierClass: "tier-rare",
+        odds: "1 in 308",
+        score: "2.5K pts",
+        desc: "Cards sorted by rank alternate perfectly between red and black with no pairs."
+    },
+
+    "Jack of All Trades": {
+        tier: "Rare",
+        tierClass: "tier-rare",
+        odds: "1 in 262",
+        score: "2K pts",
+        desc: "Your hand must contain a Jack for every unique suit present in your hand."
+    },
+
+    "Luck": {
+        tier: "Rare",
+        tierClass: "tier-rare",
+        odds: "1 in 171",
+        score: "1.5K pts",
+        desc: "Your hand contains at least three 7s."
+    },
+
+    "Monochromous": {
+        tier: "Rare",
+        tierClass: "tier-rare",
+        odds: "1 in 102",
+        score: "1K pts",
+        desc: "All 7 cards in the hand are entirely red or entirely black."
+    },
+
+    "Lovers": {
+        tier: "Uncommon",
+        tierClass: "tier-uncommon",
+        odds: "1 in 63",
+        score: "600 pts",
+        desc: "Your hand contains both the King of Hearts and the Queen of Hearts."
+    },
+
+    "Three Pair": {
+        tier: "Uncommon",
+        tierClass: "tier-uncommon",
+        odds: "1 in 54",
+        score: "500 pts",
+        desc: "Contains at least 3 distinct pairs."
+    },
+
+    "Full House": {
+        tier: "Uncommon",
+        tierClass: "tier-uncommon",
+        odds: "1 in 38",
+        score: "300 pts",
+        desc: "Contains three of a kind plus a pair."
+    },
+
+    "Flush": {
+        tier: "Uncommon",
+        tierClass: "tier-uncommon",
+        odds: "1 in 33",
+        score: "300 pts",
+        desc: "Contains 5 or more cards sharing the same suit."
+    },
+
+    "Digits": {
+        tier: "Uncommon",
+        tierClass: "tier-uncommon",
+        odds: "1 in 25",
+        score: "200 pts",
+        desc: "Every card in the hand is a number card (2 through 10)."
+    },
+
+    "Straight": {
+        tier: "Uncommon",
+        tierClass: "tier-uncommon",
+        odds: "1 in 22",
+        score: "200 pts",
+        desc: "Contains 5 or more consecutive rank values."
+    },
+
+    "Three of a Kind": {
+        tier: "Uncommon",
+        tierClass: "tier-uncommon",
+        odds: "1 in 21",
+        score: "200 pts",
+        desc: "Contains three cards of matching rank."
+    },
+
+    "Ace of Spades": {
+        tier: "Common",
+        tierClass: "tier-common",
+        odds: "1 in 7.43",
+        score: "65 pts",
+        desc: "Bonus for holding the Ace of Spades in your hand."
+    },
+
+    "Diversity": {
+        tier: "Common",
+        tierClass: "tier-common",
+        odds: "1 in 4.76",
+        score: "50 pts",
+        desc: "All 7 cards in your hand have unique ranks."
+    },
+
+    "Two Pair": {
+        tier: "Common",
+        tierClass: "tier-common",
+        odds: "1 in 4.26",
+        score: "40 pts",
+        desc: "Contains at least 2 distinct pairs."
+    },
+
+    "Prime Time": {
+        tier: "Common",
+        tierClass: "tier-common",
+        odds: "1 in 2.51",
+        score: "40 pts",
+        desc: "The total numerical sum of all 7 cards adds up to a prime number."
+    },
+
+    "One Pair": {
+        tier: "Common",
+        tierClass: "tier-common",
+        odds: "1 in 1.27",
+        score: "20 pts",
+        desc: "Contains at least 2 cards of matching rank."
+    }
+};
+
+
+let playedCount = 0;
+let isEvaluating = false;
+let displayedScore = 0;
+let targetScore = 0;
+let scoreAnimFrame = null;
+
+
+function getPercentileAndRarity(score) {
+
+    const benchmarks = [
+        { threshold: 3539224 , pct: 1e-06   , label: "Transcendent", classStyle: "tier-transcendent" },
+        { threshold: 3238606 , pct: 1e-05   , label: "Divine", classStyle: "tier-divine" },
+        { threshold: 2017337 , pct: 0.0001  , label: "Mythic", classStyle: "tier-mythic" },
+        { threshold: 1010630 , pct: 0.001   , label: "Mythic", classStyle: "tier-mythic" },
+        { threshold: 331189  , pct: 0.005   , label: "Legendary", classStyle: "tier-legendary" },
+        { threshold: 203390  , pct: 0.01    , label: "Legendary", classStyle: "tier-legendary" },
+        { threshold: 10794   , pct: 0.1     , label: "Epic", classStyle: "tier-epic" },
+        { threshold: 7149    , pct: 0.2     , label: "Rare", classStyle: "tier-rare" },
+        { threshold: 5504    , pct: 0.3     , label: "Rare", classStyle: "tier-rare" },
+        { threshold: 5320    , pct: 0.4     , label: "Rare", classStyle: "tier-rare" },
+        { threshold: 3626    , pct: 0.5     , label: "Rare", classStyle: "tier-rare" },
+        { threshold: 2795    , pct: 0.6     , label: "Rare", classStyle: "tier-rare" },
+        { threshold: 2643    , pct: 0.7     , label: "Rare", classStyle: "tier-rare" },
+        { threshold: 2606    , pct: 0.8     , label: "Rare", classStyle: "tier-rare" },
+        { threshold: 2599    , pct: 0.9     , label: "Rare", classStyle: "tier-rare" },
+        { threshold: 2375    , pct: 1       , label: "Rare", classStyle: "tier-rare" },
+        { threshold: 1112    , pct: 2.5     , label: "Rare", classStyle: "tier-rare" },
+        { threshold: 681     , pct: 5       , label: "Uncommon", classStyle: "tier-uncommon" },
+        { threshold: 610     , pct: 7.5     , label: "Uncommon", classStyle: "tier-uncommon" },
+        { threshold: 443     , pct: 10      , label: "Uncommon", classStyle: "tier-uncommon" },
+        { threshold: 310     , pct: 15      , label: "Uncommon", classStyle: "tier-uncommon" },
+        { threshold: 275     , pct: 20      , label: "Uncommon", classStyle: "tier-uncommon" },
+        { threshold: 187     , pct: 25      , label: "Common", classStyle: "tier-common" },
+        { threshold: 161     , pct: 30      , label: "Common", classStyle: "tier-common" },
+        { threshold: 143     , pct: 35      , label: "Common", classStyle: "tier-common" },
+        { threshold: 133     , pct: 40      , label: "Common", classStyle: "tier-common" },
+        { threshold: 119     , pct: 45      , label: "Common", classStyle: "tier-common" },
+        { threshold: 113     , pct: 50      , label: "Common", classStyle: "tier-common" },
+        { threshold: 108     , pct: 55      , label: "Common", classStyle: "tier-common" },
+        { threshold: 105     , pct: 60      , label: "Common", classStyle: "tier-common" },
+        { threshold: 101     , pct: 65      , label: "Common", classStyle: "tier-common" },
+        { threshold: 96      , pct: 70      , label: "Common", classStyle: "tier-common" },
+        { threshold: 80      , pct: 75      , label: "Common", classStyle: "tier-common" },
+        { threshold: 75      , pct: 80      , label: "Common", classStyle: "tier-common" },
+        { threshold: 72      , pct: 85      , label: "Common", classStyle: "tier-common" },
+        { threshold: 69      , pct: 90      , label: "Common", classStyle: "tier-common" },
+        { threshold: 65      , pct: 95      , label: "Common", classStyle: "tier-common" },
+        { threshold: 53      , pct: 100     , label: "Common", classStyle: "tier-common" }
+    ];
+    
+    let matched = benchmarks[benchmarks.length - 1];
+
+    for (let i = 0; i < benchmarks.length; i++) {
+
+        if (score >= benchmarks[i].threshold) {
+            matched = benchmarks[i];
+            break;
+        }
+
+    }
+
+    let rawFormatted =
+        matched.pct < 0.001
+            ? matched.pct.toFixed(6)
+            : (
+                matched.pct < 1
+                    ? matched.pct.toFixed(4)
+                    : matched.pct.toFixed(1)
+            );
+
+    // Strips unnecessary trailing decimal zeroes
+    let pFormatted = rawFormatted.replace(/\.?0+$/, '');
+
+    return {
+        text: `Top ${pFormatted}% — <span class="${matched.classStyle}">${matched.label}</span>`,
+        class: matched.classStyle
     };
+}
 
-    // Game State
-    let playerHp = 100;
-    let maxPlayerHp = 100;
-    let bossHp = 500;
-    let maxBossHp = 500;
-    let bossStage = 1;
-    let coins = 200;
-    let tickets = 0;
-    let selectedCards = [];
-    let currentHand = [];
 
-    const suits = ['♥', '♦', '♠', '♣'];
-    const suitClasses = {'♥': 'suit-hearts', '♦': 'suit-diamonds', '♠': 'suit-spades', '♣': 'suit-clubs'};
-    const ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+window.addEventListener('DOMContentLoaded', () => {
 
-    // Tab Switcher Fix
-    function switchMode(modeId) {
-      document.querySelectorAll('.mode-panel').forEach(panel => panel.classList.add('hidden'));
-      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-      
-      const targetPanel = document.getElementById(modeId);
-      if (targetPanel) {
-        targetPanel.classList.remove('hidden');
-      }
-      
-      event.target.classList.add('active');
-      if(modeId === 'roguelikeMode' && currentHand.length === 0) {
-        startNewRogueTurn();
-      }
+    const listEl = document.getElementById('allCatList');
+
+    listEl.innerHTML = '';
+
+    for (let [catName, data] of Object.entries(categoryMeta)) {
+
+        let li = document.createElement('li');
+
+        li.className = data.tierClass;
+
+        li.innerHTML =
+            `<strong>${catName}</strong>
+             <span style="font-size:0.75rem; color:var(--muted);">
+                ${data.odds} (${data.score})
+             </span>`;
+
+        li.onclick = () => {
+            closeAllCategoriesModal();
+            openModal(catName);
+        };
+
+        listEl.appendChild(li);
     }
 
-    // Generate Cards
-    function generateHand(size = 7) {
-      let hand = [];
-      for(let i = 0; i < size; i++) {
-        const suit = suits[Math.floor(Math.random() * suits.length)];
-        const rank = ranks[Math.floor(Math.random() * ranks.length)];
-        hand.push({ suit, rank, value: ranks.indexOf(rank) + 2 });
-      }
-      return hand;
+});
+
+
+function createDeck() {
+
+    let deck = [];
+
+    for (let s of suits) {
+
+        for (let r of ranks) {
+
+            deck.push({
+                rank: r,
+                suit: s,
+                val: rankValues[r]
+            });
+
+        }
+
     }
 
-    function renderHand(containerId, hand, isSelectable = false) {
-      const container = document.getElementById(containerId);
-      container.innerHTML = '';
-      hand.forEach((card, index) => {
+    return deck;
+}
+
+
+function shuffle(deck) {
+
+    for (let i = deck.length - 1; i > 0; i--) {
+
+        let j = Math.floor(Math.random() * (i + 1));
+
+        [deck[i], deck[j]] = [deck[j], deck[i]];
+
+    }
+
+    return deck;
+}
+
+
+function dealHand() {
+
+    if (isEvaluating) return;
+
+    isEvaluating = true;
+
+    document.getElementById('dealBtn').disabled = true;
+
+    playedCount++;
+
+    document.getElementById('handsPlayed').innerText = playedCount;
+
+    displayedScore = 0;
+    targetScore = 0;
+
+    document.getElementById('totalScore').innerText = '0';
+
+    document.getElementById('percentileDisplay').innerHTML =
+        `Top 100% — <span class="tier-common">Common</span>`;
+
+    if (scoreAnimFrame) {
+        cancelAnimationFrame(scoreAnimFrame);
+        scoreAnimFrame = null;
+    }
+
+    document.getElementById('logList').innerHTML =
+        '<li><em>Dealing cards...</em></li>';
+
+    let deck = shuffle(createDeck());
+
+    let hand = deck.slice(0, 7);
+
+    hand.sort(
+        (a, b) => rankValues[a.rank] - rankValues[b.rank]
+    );
+
+    renderFaceDownCards();
+
+    flipCardsSequentially(hand);
+}
+
+
+function renderFaceDownCards() {
+
+    const row1 = document.getElementById('cardRow1');
+    const row2 = document.getElementById('cardRow2');
+
+    row1.innerHTML = '';
+    row2.innerHTML = '';
+
+    for (let i = 0; i < 7; i++) {
+
         const cardEl = document.createElement('div');
-        cardEl.className = `card ${suitClasses[card.suit]}`;
-        if (selectedCards.includes(index)) cardEl.classList.add('selected');
-        
+
+        cardEl.className = 'card facedown';
+
         cardEl.innerHTML = `
-          <div>${card.rank}</div>
-          <div style="text-align: center; font-size: 1.4rem;">${card.suit}</div>
-          <div style="text-align: right;">${card.rank}</div>
+            <span class="card-top">?</span>
+            <span class="card-center">🂠</span>
+            <span class="card-bottom">?</span>
         `;
 
-        if (isSelectable) {
-          cardEl.onclick = () => {
-            if (selectedCards.includes(index)) {
-              selectedCards = selectedCards.filter(i => i !== index);
-            } else {
-              selectedCards.push(index);
-            }
-            renderHand(containerId, hand, isSelectable);
-          };
-        }
-        container.appendChild(cardEl);
-      });
-    }
-
-    // Health Bar Visibility Manager
-    function setFocusHealthBar(target) {
-      const bossHpContainer = document.getElementById('bossHpContainer');
-      const playerHpContainer = document.getElementById('playerHpContainer');
-
-      if (target === 'boss') {
-        bossHpContainer.classList.add('active-target');
-        playerHpContainer.classList.remove('active-target');
-      } else if (target === 'player') {
-        playerHpContainer.classList.add('active-target');
-        bossHpContainer.classList.remove('active-target');
-      }
-    }
-
-    // Classic Mode
-    function dealClassicHand() {
-      const hand = generateHand(7);
-      renderHand('classicHand', hand, false);
-      const score = Math.floor(Math.random() * 50000) + 1000;
-      document.getElementById('classicScore').innerText = `Hand Score: ${score.toLocaleString()} PTS`;
-    }
-
-    // Roguelike Mode
-    function startNewRogueTurn() {
-      currentHand = generateHand(7);
-      selectedCards = [];
-      renderHand('rogueHand', currentHand, true);
-      updateUI();
-    }
-
-    function playRogueHand() {
-      if (selectedCards.length === 0) return;
-
-      // Player Attacks -> Focus Boss Health Bar
-      setFocusHealthBar('boss');
-
-      // Damage Calculation
-      let baseDamage = selectedCards.reduce((sum, idx) => sum + currentHand[idx].value * 10, 0);
-      let totalDamage = Math.floor(baseDamage * 1.2);
-
-      // Record Stats
-      bossHp = Math.max(0, bossHp - totalDamage);
-      runStats.totalDamageDealt += totalDamage;
-
-      updateUI();
-
-      // Check Boss Defeat
-      if (bossHp <= 0) {
-        runStats.bossesBeat += 1;
-        let earned = 150 + (bossStage * 50);
-        coins += earned;
-        runStats.coinsEarned += earned;
-        
-        bossStage += 1;
-        maxBossHp = Math.floor(maxBossHp * 1.5);
-        bossHp = maxBossHp;
-        
-        setTimeout(() => {
-          alert(`Boss Defeated! Earned ${earned} coins.`);
-          startNewRogueTurn();
-        }, 300);
-        return;
-      }
-
-      // Boss Counter-Attacks after brief delay
-      setTimeout(() => {
-        // Boss Attacks -> Focus Player Health Bar
-        setFocusHealthBar('player');
-
-        let bossDamage = 10 + (bossStage * 5);
-        playerHp = Math.max(0, playerHp - bossDamage);
-        updateUI();
-
-        if (playerHp <= 0) {
-          endRun(false);
+        if (i < 4) {
+            row1.appendChild(cardEl);
         } else {
-          startNewRogueTurn();
+            row2.appendChild(cardEl);
         }
-      }, 800);
+
+    }
+}
+
+
+function flipCardsSequentially(hand) {
+
+    const row1Children =
+        document.getElementById('cardRow1').children;
+
+    const row2Children =
+        document.getElementById('cardRow2').children;
+
+    const allCardEls = [
+        ...row1Children,
+        ...row2Children
+    ];
+
+    let index = 0;
+
+    function flipNext() {
+
+        if (index < hand.length) {
+
+            let card = hand[index];
+
+            let cardEl = allCardEls[index];
+
+            const isRed =
+                suitColors[card.suit] === 'red';
+
+            cardEl.className =
+                `card ${isRed ? 'red' : ''}`;
+
+            cardEl.innerHTML = `
+                <span class="card-top">${card.rank}</span>
+                <span class="card-center">${card.suit}</span>
+                <span class="card-bottom">${card.rank}</span>
+            `;
+
+            index++;
+
+            setTimeout(flipNext, 200);
+
+        } else {
+
+            evaluateHandSmooth(hand);
+
+        }
+
     }
 
-    // Ticket Functionality (Fixed Value = 500)
-    function buyTicket() {
-      const ticketCost = 500;
-      if (coins >= ticketCost) {
-        coins -= ticketCost;
-        tickets += 1;
-        
-        // Ticket immediate bonus value calculation
-        coins += TICKET_VALUE; 
-        runStats.coinsEarned += TICKET_VALUE;
-        
-        alert(`Bought Ticket for 500 coins! Redeemed ticket for fixed value of ${TICKET_VALUE} coins!`);
-        updateUI();
-      } else {
-        alert("Not enough coins to buy a ticket!");
-      }
+    setTimeout(flipNext, 300);
+}
+
+
+function animateScoreToTarget() {
+
+    if (displayedScore < targetScore) {
+
+        let diff =
+            targetScore - displayedScore;
+
+        let step =
+            Math.max(1, Math.ceil(diff / 10));
+
+        displayedScore += step;
+
+        if (displayedScore > targetScore) {
+            displayedScore = targetScore;
+        }
+
+        document.getElementById('totalScore').innerText =
+            displayedScore.toLocaleString();
+
+        let rarityInfo =
+            getPercentileAndRarity(displayedScore);
+
+        document.getElementById('percentileDisplay').innerHTML =
+            rarityInfo.text;
+
+        scoreAnimFrame =
+            requestAnimationFrame(animateScoreToTarget);
+    }
+}
+
+
+function isPrime(num) {
+
+    if (num < 2) return false;
+
+    for (let i = 2; i <= Math.sqrt(num); i++) {
+
+        if (num % i === 0) {
+            return false;
+        }
+
     }
 
-    function updateUI() {
-      document.getElementById('bossHpText').innerText = `${bossHp} / ${maxBossHp} HP`;
-      document.getElementById('bossHpBar').style.width = `${(bossHp / maxBossHp) * 100}%`;
-      document.getElementById('bossName').innerText = `Boss (Stage ${bossStage})`;
+    return true;
+}
 
-      document.getElementById('playerHpText').innerText = `${playerHp} / ${maxPlayerHp} HP`;
-      document.getElementById('playerHpBar').style.width = `${(playerHp / maxPlayerHp) * 100}%`;
 
-      document.getElementById('coinDisplay').innerText = coins;
-      document.getElementById('ticketDisplay').innerText = tickets;
+function evaluateHandSmooth(hand) {
+
+    let matched = {};
+
+    let suitCounts = {};
+    let rankCounts = {};
+
+    let allNumeric = true;
+    let sumRanks = 0;
+
+
+    hand.forEach(card => {
+
+        suitCounts[card.suit] =
+            (suitCounts[card.suit] || 0) + 1;
+
+        rankCounts[card.rank] =
+            (rankCounts[card.rank] || 0) + 1;
+
+        let val = rankValues[card.rank];
+
+        sumRanks += val;
+
+        if (['J', 'Q', 'K', 'A'].includes(card.rank)) {
+            allNumeric = false;
+        }
+
+    });
+
+
+    let cardSumBonus = sumRanks;
+
+    let maxSuitCount =
+        Math.max(...Object.values(suitCounts));
+
+    let uniqueRanks =
+        Object.keys(rankCounts).length;
+
+    let maxRankCount =
+        Math.max(...Object.values(rankCounts));
+
+    let countsArray =
+        Object.values(rankCounts).sort((a, b) => b - a);
+
+    let pairCount =
+        Object.values(rankCounts)
+            .filter(count => count >= 2)
+            .length;
+
+
+    let uniqueRankVals =
+        [...new Set(
+            hand.map(c => rankValues[c.rank])
+        )].sort((a, b) => a - b);
+
+
+    let maxConsecutive = 1;
+    let currentConsecutive = 1;
+
+
+    for (
+        let i = 0;
+        i < uniqueRankVals.length - 1;
+        i++
+    ) {
+
+        if (
+            uniqueRankVals[i + 1] ===
+            uniqueRankVals[i] + 1
+        ) {
+
+            currentConsecutive++;
+
+            if (currentConsecutive > maxConsecutive) {
+                maxConsecutive = currentConsecutive;
+            }
+
+        } else {
+
+            currentConsecutive = 1;
+
+        }
+
     }
 
-    function endRun(victory) {
-      document.getElementById('modalTitle').innerText = victory ? "Run Victory!" : "Game Over";
-      document.getElementById('statBosses').innerText = runStats.bossesBeat;
-      document.getElementById('statDamage').innerText = runStats.totalDamageDealt.toLocaleString();
-      document.getElementById('statCoins').innerText = runStats.coinsEarned.toLocaleString();
-      document.getElementById('endRunModal').classList.remove('hidden');
+
+    // ============================================================
+    // 1. DIVINE TIER
+    // ============================================================
+
+    let isSevenFlush = false;
+
+    if (maxSuitCount === 7) {
+
+        let sevenFlushSuit =
+            Object.keys(suitCounts)
+                .find(s => suitCounts[s] === 7);
+
+        if (sevenFlushSuit) {
+
+            let suitRankValues =
+                [...new Set(
+                    hand
+                        .filter(c => c.suit === sevenFlushSuit)
+                        .map(c => rankOrder[c.rank])
+                )]
+                .sort((a, b) => a - b);
+
+
+            let suitMaxConsecutive = 1;
+            let suitCurrentConsecutive = 1;
+
+
+            // Ace can be low for A-2-3-4-5
+            if (suitRankValues.includes(14)) {
+
+                suitRankValues.unshift(1);
+
+                suitRankValues.sort(
+                    (a, b) => a - b
+                );
+
+            }
+
+
+            for (
+                let i = 1;
+                i < suitRankValues.length;
+                i++
+            ) {
+
+                if (
+                    suitRankValues[i] ===
+                    suitRankValues[i - 1] + 1
+                ) {
+
+                    suitCurrentConsecutive++;
+
+                    suitMaxConsecutive =
+                        Math.max(
+                            suitMaxConsecutive,
+                            suitCurrentConsecutive
+                        );
+
+                } else {
+
+                    suitCurrentConsecutive = 1;
+
+                }
+
+            }
+
+
+            isSevenFlush =
+                suitMaxConsecutive >= 7;
+
+        }
+
     }
 
-    function resetRoguelikeRun() {
-      playerHp = 100;
-      maxPlayerHp = 100;
-      bossHp = 500;
-      maxBossHp = 500;
-      bossStage = 1;
-      coins = 200;
-      tickets = 0;
-      
-      runStats = {
+
+    if (isSevenFlush) {
+
+        matched["Seven Flush"] = {
+            pts: 3000000,
+            tier: "tier-divine"
+        };
+
+    }
+
+
+    // ============================================================
+    // 2. MYTHIC TIER
+    // ============================================================
+
+    let isThreeBlindMice =
+        hand.every(card =>
+            ['3', '6', '9'].includes(card.rank)
+        );
+
+
+    if (isThreeBlindMice) {
+
+        matched["Three Blind Mice"] = {
+            pts: 1000000,
+            tier: "tier-mythic"
+        };
+
+    }
+
+
+    if (
+        hand.every(c =>
+            ['J', 'Q', 'K'].includes(c.rank)
+        )
+    ) {
+
+        matched["Faces"] = {
+            pts: 1000000,
+            tier: "tier-mythic"
+        };
+
+    }
+
+
+    if (uniqueRanks === 2) {
+
+        matched["Binary"] = {
+            pts: 2000000,
+            tier: "tier-mythic"
+        };
+
+    }
+
+
+    // Blackjack: sum equals 21, no Ace
+    if (
+        sumRanks === 21 &&
+        !hand.some(c => c.rank === 'A')
+    ) {
+
+        matched["Blackjack"] = {
+            pts: 1000000,
+            tier: "tier-legendary"
+        };
+
+    }
+
+
+    // ============================================================
+    // 3. LEGENDARY TIER
+    // ============================================================
+
+    let hasK =
+        hand.some(c => c.rank === 'K');
+
+    let hasQ =
+        hand.some(c => c.rank === 'Q');
+
+    let hasJ =
+        hand.some(c => c.rank === 'J');
+
+
+    let hasNoOtherFacesOrAces =
+        !hand.some(c =>
+            ['10', 'A'].includes(c.rank) ||
+            (
+                c.rank === 'K' &&
+                hand.filter(x => x.rank === 'K').length > 1
+            ) ||
+            (
+                c.rank === 'Q' &&
+                hand.filter(x => x.rank === 'Q').length > 1
+            ) ||
+            (
+                c.rank === 'J' &&
+                hand.filter(x => x.rank === 'J').length > 1
+            )
+        );
+
+
+    let isKingdom = false;
+
+
+    if (
+        hasK &&
+        hasQ &&
+        hasJ &&
+        hasNoOtherFacesOrAces &&
+        hand.length === 7
+    ) {
+
+        let faceCards =
+            hand.filter(c =>
+                ['K', 'Q', 'J'].includes(c.rank)
+            );
+
+
+        let faceSuits =
+            new Set(
+                faceCards.map(c => c.suit)
+            );
+
+
+        let missingSuit =
+            suits.find(s => !faceSuits.has(s));
+
+
+        let remainingCards =
+            hand.filter(
+                c => !['K', 'Q', 'J'].includes(c.rank)
+            );
+
+
+        if (
+            faceCards.length === 3 &&
+            faceSuits.size === 3 &&
+            missingSuit &&
+            remainingCards.length === 4 &&
+            remainingCards.every(
+                c => c.suit === missingSuit
+            )
+        ) {
+
+            isKingdom = true;
+
+        }
+
+    }
+
+
+    if (isKingdom) {
+
+        matched["Kingdom"] = {
+            pts: 400000,
+            tier: "tier-legendary"
+        };
+
+    }
+
+
+    let hasRoyalRanks =
+        ['10', 'J', 'Q', 'K', 'A'].every(
+            r => rankCounts[r] > 0
+        );
+
+
+    let royalSuit =
+        Object.keys(suitCounts)
+            .find(s => suitCounts[s] >= 5);
+
+
+    let isRoyalFlush = (
+        hasRoyalRanks &&
+        royalSuit &&
+        hand.filter(c =>
+            c.suit === royalSuit &&
+            ['10', 'J', 'Q', 'K', 'A'].includes(c.rank)
+        ).length >= 5
+    );
+
+
+    if (isRoyalFlush) {
+
+        matched["Royal Flush"] = {
+            pts: 300000,
+            tier: "tier-legendary"
+        };
+
+    }
+
+
+    if (maxSuitCount === 7) {
+
+        matched["Unity"] = {
+            pts: 200000,
+            tier: "tier-legendary"
+        };
+
+    }
+
+
+    let isFibonacci =
+        hand.every(card =>
+            ['2', '3', '5', '8'].includes(card.rank)
+        );
+
+
+    if (isFibonacci) {
+
+        matched["Fibonacci"] = {
+            pts: 100000,
+            tier: "tier-epic"
+        };
+
+    }
+
+
+    // ============================================================
+    // 4. EPIC TIER
+    // ============================================================
+
+    if ((rankCounts['A'] || 0) >= 4) {
+
+        matched["Aces"] = {
+            pts: 70000,
+            tier: "tier-epic"
+        };
+
+    }
+
+
+    // Straight Flush
+    let isStraightFlush = false;
+
+
+    for (let suit of Object.keys(suitCounts)) {
+
+        if (suitCounts[suit] < 5) continue;
+
+
+        let suitRankValues =
+            [...new Set(
+                hand
+                    .filter(c => c.suit === suit)
+                    .map(c => rankOrder[c.rank])
+            )]
+            .sort((a, b) => a - b);
+
+
+        let suitCurrentConsecutive = 1;
+        let suitMaxConsecutive = 1;
+
+
+        // Ace can be low
+        if (suitRankValues.includes(14)) {
+
+            suitRankValues.unshift(1);
+
+            suitRankValues.sort(
+                (a, b) => a - b
+            );
+
+        }
+
+
+        for (
+            let i = 1;
+            i < suitRankValues.length;
+            i++
+        ) {
+
+            if (
+                suitRankValues[i] ===
+                suitRankValues[i - 1] + 1
+            ) {
+
+                suitCurrentConsecutive++;
+
+                suitMaxConsecutive =
+                    Math.max(
+                        suitMaxConsecutive,
+                        suitCurrentConsecutive
+                    );
+
+            } else {
+
+                suitCurrentConsecutive = 1;
+
+            }
+
+        }
+
+
+        if (suitMaxConsecutive >= 5) {
+
+            isStraightFlush = true;
+
+            break;
+
+        }
+
+    }
+
+
+    if (isStraightFlush) {
+
+        matched["Straight Flush"] = {
+            pts: 30000,
+            tier: "tier-epic"
+        };
+
+    }
+
+
+    const numberCards =
+        hand.filter(c =>
+            /^([2-9]|10)$/.test(c.rank)
+        );
+
+
+    const allEvens =
+        numberCards.length === 7 &&
+        numberCards.every(
+            c => Number(c.rank) % 2 === 0
+        );
+
+
+    const allOdds =
+        numberCards.length === 7 &&
+        numberCards.every(
+            c => Number(c.rank) % 2 !== 0
+        );
+
+
+    if (allEvens || allOdds) {
+
+        matched["Evens / Odds"] = {
+            pts: 10000,
+            tier: "tier-epic"
+        };
+
+    }
+
+
+    // ============================================================
+    // 5. RARE TIER
+    // ============================================================
+
+    let isFourCorners = false;
+
+    let hasA =
+        hand.some(c => c.rank === 'A');
+
+
+    if (
+        hasA &&
+        hasK &&
+        hasQ &&
+        hasJ &&
+        hand.length === 7
+    ) {
+
+        let specificFaces =
+            hand.filter(c =>
+                ['A', 'K', 'Q', 'J'].includes(c.rank)
+            );
+
+
+        let specificSuits =
+            new Set(
+                specificFaces.map(c => c.suit)
+            );
+
+
+        let otherCards =
+            hand.filter(
+                c => !['A', 'K', 'Q', 'J'].includes(c.rank)
+            );
+
+
+        if (
+            specificFaces.length === 4 &&
+            specificSuits.size === 4 &&
+            otherCards.length === 3
+        ) {
+
+            isFourCorners = true;
+
+        }
+
+    }
+
+
+    if (isFourCorners) {
+
+        matched["Four Corners"] = {
+            pts: 7000,
+            tier: "tier-rare"
+        };
+
+    }
+
+
+    if (maxRankCount >= 4) {
+
+        matched["Four of a Kind"] = {
+            pts: 5000,
+            tier: "tier-rare"
+        };
+
+    }
+
+
+    // Seven: UNIQUE ranks only
+    let isSeven = false;
+
+
+    let sevenRankValues =
+        [...new Set(
+            hand.map(c => rankOrder[c.rank])
+        )]
+        .sort((a, b) => a - b);
+
+
+    // Ace can be low
+    if (sevenRankValues.includes(14)) {
+
+        sevenRankValues.unshift(1);
+
+        sevenRankValues.sort(
+            (a, b) => a - b
+        );
+
+    }
+
+
+    let sevenCurrentConsecutive = 1;
+    let sevenMaxConsecutive = 1;
+
+
+    for (
+        let i = 1;
+        i < sevenRankValues.length;
+        i++
+    ) {
+
+        if (
+            sevenRankValues[i] ===
+            sevenRankValues[i - 1] + 1
+        ) {
+
+            sevenCurrentConsecutive++;
+
+            sevenMaxConsecutive =
+                Math.max(
+                    sevenMaxConsecutive,
+                    sevenCurrentConsecutive
+                );
+
+        } else {
+
+            sevenCurrentConsecutive = 1;
+
+        }
+
+    }
+
+
+    isSeven =
+        sevenMaxConsecutive >= 7;
+
+
+    if (isSeven) {
+
+        matched["Seven"] = {
+            pts: 5000,
+            tier: "tier-rare"
+        };
+
+    }
+
+
+    // Checkered
+    let isColorCheckered = false;
+
+
+    if (
+        hand.length === 7 &&
+        uniqueRanks === 7
+    ) {
+
+        let sortedHand =
+            [...hand].sort(
+                (a, b) =>
+                    rankOrder[a.rank] -
+                    rankOrder[b.rank]
+            );
+
+
+        isColorCheckered = true;
+
+
+        for (
+            let i = 0;
+            i < sortedHand.length - 1;
+            i++
+        ) {
+
+            let currentColor =
+                suitColors[sortedHand[i].suit];
+
+            let nextColor =
+                suitColors[sortedHand[i + 1].suit];
+
+
+            if (currentColor === nextColor) {
+
+                isColorCheckered = false;
+
+                break;
+
+            }
+
+        }
+
+    }
+
+
+    if (isColorCheckered) {
+
+        matched["Checkered"] = {
+            pts: 2500,
+            tier: "tier-rare"
+        };
+
+    }
+
+
+    let uniqueSuits =
+        [...new Set(
+            hand.map(c => c.suit)
+        )];
+
+
+    let jacks =
+        hand.filter(c => c.rank === 'J');
+
+
+    let jacksSuits =
+        jacks.map(c => c.suit);
+
+
+    let hasJackForEachSuit =
+        uniqueSuits.every(
+            s => jacksSuits.includes(s)
+        );
+
+
+    if (
+        uniqueSuits.length > 0 &&
+        hasJackForEachSuit
+    ) {
+
+        matched["Jack of All Trades"] = {
+            pts: 2000,
+            tier: "tier-rare"
+        };
+
+    }
+
+
+    let sevensCount =
+        rankCounts['7'] || 0;
+
+
+    if (sevensCount >= 3) {
+
+        matched["Luck"] = {
+            pts: 1500,
+            tier: "tier-rare"
+        };
+
+    }
+
+
+    let redCount =
+        (suitCounts['♥'] || 0) +
+        (suitCounts['♦'] || 0);
+
+
+    let blackCount =
+        (suitCounts['♠'] || 0) +
+        (suitCounts['♣'] || 0);
+
+
+    if (
+        redCount === 7 ||
+        blackCount === 7
+    ) {
+
+        matched["Monochromous"] = {
+            pts: 1000,
+            tier: "tier-rare"
+        };
+
+    }
+
+
+    // ============================================================
+    // 6. UNCOMMON TIER
+    // ============================================================
+
+    let hasKingOfHearts =
+        hand.some(
+            c => c.rank === 'K' && c.suit === '♥'
+        );
+
+
+    let hasQueenOfHearts =
+        hand.some(
+            c => c.rank === 'Q' && c.suit === '♥'
+        );
+
+
+    if (
+        hasKingOfHearts &&
+        hasQueenOfHearts
+    ) {
+
+        matched["Lovers"] = {
+            pts: 600,
+            tier: "tier-uncommon"
+        };
+
+    }
+
+
+    if (pairCount >= 3) {
+
+        matched["Three Pair"] = {
+            pts: 500,
+            tier: "tier-uncommon"
+        };
+
+    }
+
+
+    if (
+        countsArray[0] === 3 &&
+        countsArray[1] >= 2
+    ) {
+
+        matched["Full House"] = {
+            pts: 300,
+            tier: "tier-uncommon"
+        };
+
+    }
+
+
+    if (maxSuitCount >= 5) {
+
+        matched["Flush"] = {
+            pts: 300,
+            tier: "tier-uncommon"
+        };
+
+    }
+
+
+    if (allNumeric) {
+
+        matched["Digits"] = {
+            pts: 200,
+            tier: "tier-uncommon"
+        };
+
+    }
+
+
+    // Straight
+    let isStraight = false;
+
+
+    let straightRankValues =
+        [...new Set(
+            hand.map(c => rankOrder[c.rank])
+        )]
+        .sort((a, b) => a - b);
+
+
+    // Ace can be low
+    if (straightRankValues.includes(14)) {
+
+        straightRankValues.unshift(1);
+
+        straightRankValues.sort(
+            (a, b) => a - b
+        );
+
+    }
+
+
+    let straightCurrentConsecutive = 1;
+    let straightMaxConsecutive = 1;
+
+
+    for (
+        let i = 1;
+        i < straightRankValues.length;
+        i++
+    ) {
+
+        if (
+            straightRankValues[i] ===
+            straightRankValues[i - 1] + 1
+        ) {
+
+            straightCurrentConsecutive++;
+
+            straightMaxConsecutive =
+                Math.max(
+                    straightMaxConsecutive,
+                    straightCurrentConsecutive
+                );
+
+        } else {
+
+            straightCurrentConsecutive = 1;
+
+        }
+
+    }
+
+
+    isStraight =
+        straightMaxConsecutive >= 5;
+
+
+    if (isStraight) {
+
+        matched["Straight"] = {
+            pts: 200,
+            tier: "tier-uncommon"
+        };
+
+    }
+
+
+    if (maxRankCount >= 3) {
+
+        matched["Three of a Kind"] = {
+            pts: 200,
+            tier: "tier-uncommon"
+        };
+
+    }
+
+
+    // ============================================================
+    // 7. COMMON TIER
+    // ============================================================
+
+    let hasAceOfSpades =
+        hand.some(
+            c => c.rank === 'A' && c.suit === '♠'
+        );
+
+
+    if (hasAceOfSpades) {
+
+        matched["Ace of Spades"] = {
+            pts: 65,
+            tier: "tier-common"
+        };
+
+    }
+
+
+    if (uniqueRanks === 7) {
+
+        matched["Diversity"] = {
+            pts: 50,
+            tier: "tier-common"
+        };
+
+    }
+
+
+    if (isPrime(sumRanks)) {
+
+        matched["Prime Time"] = {
+            pts: 40,
+            tier: "tier-common"
+        };
+
+    }
+
+
+    if (
+        (
+            countsArray[0] >= 2 &&
+            countsArray[1] >= 2
+        ) ||
+        countsArray[0] >= 4
+    ) {
+
+        matched["Two Pair"] = {
+            pts: 40,
+            tier: "tier-common"
+        };
+
+    }
+
+
+    if (maxRankCount >= 2) {
+
+        matched["One Pair"] = {
+            pts: 20,
+            tier: "tier-common"
+        };
+
+    }
+
+
+    // ============================================================
+    // SCORE BONUSES
+    // ============================================================
+
+    let matchedList =
+        Object.keys(matched).map(key => ({
+            name: key,
+            pts: matched[key].pts,
+            tier: matched[key].tier
+        }));
+
+
+    matchedList.sort(
+        (a, b) => a.pts - b.pts
+    );
+
+    const computedScore = matchedList.reduce((sum, item) => sum + item.pts, 0) + cardSumBonus;
+    if (arguments.length > 1 && arguments[1] && arguments[1].silent) return computedScore;
+
+
+    const logList =
+        document.getElementById('logList');
+
+    logList.innerHTML = '';
+
+
+    let index = 0;
+
+
+    function showNextBonus() {
+
+        if (index < matchedList.length) {
+
+            let cat =
+                matchedList[index];
+
+
+            targetScore += cat.pts;
+
+            animateScoreToTarget();
+
+
+            let li =
+                document.createElement('li');
+
+
+            li.className =
+                cat.tier;
+
+
+            li.innerHTML =
+                `<strong>${cat.name}</strong>: +${cat.pts.toLocaleString()} pts`;
+
+
+            li.onclick = () =>
+                openModal(cat.name);
+
+
+            logList.appendChild(li);
+
+
+            index++;
+
+
+            setTimeout(
+                showNextBonus,
+                600
+            );
+
+        } else {
+
+            targetScore += cardSumBonus;
+
+            animateScoreToTarget();
+
+
+            let liHigh =
+                document.createElement('li');
+
+
+            liHigh.style.color = "#888";
+
+
+            liHigh.innerHTML =
+                `Card Sum Bonus: +${cardSumBonus} pts`;
+
+
+            liHigh.onclick = () =>
+                openModal("Card Sum Bonus");
+
+
+            logList.appendChild(liHigh);
+
+
+            setTimeout(() => {
+
+                isEvaluating = false;
+
+                document.getElementById(
+                    'dealBtn'
+                ).disabled = false;
+
+            }, 400);
+
+        }
+
+    }
+
+
+    if (matchedList.length === 0) {
+
+        targetScore += cardSumBonus;
+
+        animateScoreToTarget();
+
+
+        let liNone =
+            document.createElement('li');
+
+
+        liNone.style.color = "#888";
+
+
+        liNone.innerHTML =
+            `Card Sum Bonus Only: +${cardSumBonus} pts`;
+
+
+        liNone.onclick = () =>
+            openModal("Card Sum Bonus");
+
+
+        logList.appendChild(liNone);
+
+
+        setTimeout(() => {
+
+            isEvaluating = false;
+
+            document.getElementById(
+                'dealBtn'
+            ).disabled = false;
+
+        }, 400);
+
+    } else {
+
+        setTimeout(
+            showNextBonus,
+            400
+        );
+
+    }
+
+}
+
+
+function openModal(bonusName) {
+
+    const modal =
+        document.getElementById('modalOverlay');
+
+    const titleEl =
+        document.getElementById('modalTitle');
+
+    const tierEl =
+        document.getElementById('modalTier');
+
+    const oddsEl =
+        document.getElementById('modalOdds');
+
+    const triggerEl =
+        document.getElementById('modalTrigger');
+
+
+    titleEl.innerText =
+        bonusName;
+
+
+    if (bonusName === "Card Sum Bonus") {
+
+        tierEl.innerText =
+            "Base Stat";
+
+        oddsEl.innerText =
+            "100%";
+
+        triggerEl.innerText =
+            "Adds the combined numerical value of all 7 cards in your hand.";
+
+    } else if (categoryMeta[bonusName]) {
+
+        let info =
+            categoryMeta[bonusName];
+
+        tierEl.innerText =
+            info.tier;
+
+        oddsEl.innerText =
+            info.odds;
+
+        triggerEl.innerText =
+            info.desc;
+
+    } else {
+
+        tierEl.innerText =
+            "Unknown";
+
+        oddsEl.innerText =
+            "N/A";
+
+        triggerEl.innerText =
+            "No description available.";
+
+    }
+
+
+    modal.classList.add('active');
+}
+
+
+function closeModal() {
+
+    document
+        .getElementById('modalOverlay')
+        .classList.remove('active');
+
+}
+
+
+function openAllCategoriesModal() {
+
+    document
+        .getElementById('allCategoriesModalOverlay')
+        .classList.add('active');
+
+}
+
+
+function closeAllCategoriesModal() {
+
+    document
+        .getElementById('allCategoriesModalOverlay')
+        .classList.remove('active');
+
+}
+
+
+const rogueRanks=['2','3','4','5','6','7','8','9','10','J','Q','K','A'];
+const rogueSuitData={'♥':{name:'Healing',values:[25,30,35,40,45,50,55,60,65,70,80,90,100]},'♦':{name:'Coins',values:[25,30,35,40,45,50,55,60,65,70,80,90,100]},'♠':{name:'Damage',values:[1,1.1,1.2,1.3,1.4,1.5,1.7,2,2.5,3,5,7,10]},'♣':{name:'Luck',values:[25,30,35,40,45,50,55,60,65,70,80,90,99]}};
+const roguePackPrices=[100,120,140,160,180,200,300,400,500,600,700,800,1000];
+
+// Expanded Rogue State with stats tracking
+let rogue={
+    active:false,
+    phase:'money',
+    hand:0,
+    coins:0,
+    hp:1000,
+    maxHp:1000,
+    boss:1,
+    bossHp:500,
+    bossMaxHp:500,
+    guarantee:false,
+    selectedPack:null,
+    evaluating:false,
+    foundations:{'♥':0,'♦':0,'♠':0,'♣':0},
+    totalDamageDealt: 0,
+    bossesBeat: 0,
+    coinsEarned: 0
+};
+
+document.querySelectorAll('.foundation-card').forEach(card=>card.addEventListener('click',()=>{document.querySelectorAll('.foundation-card').forEach(c=>c.classList.remove('tooltip-open'));card.classList.toggle('tooltip-open');}));
+document.addEventListener('click',e=>{if(!e.target.closest('.foundation-card'))document.querySelectorAll('.foundation-card').forEach(c=>c.classList.remove('tooltip-open'));});
+
+function switchMode(mode){
+    document.getElementById('classicMode').classList.toggle('hidden',mode!=='classic');
+    document.getElementById('roguelikeMode').classList.toggle('hidden',mode!=='roguelike');
+    document.getElementById('classicModeBtn').classList.toggle('active',mode==='classic');
+    document.getElementById('rogueModeBtn').classList.toggle('active',mode==='roguelike');
+    if(mode==='roguelike'&&!rogue.active)startRogueRun();
+}
+
+function rogueFoundationRank(s){return rogueRanks[rogue.foundations[s]];} 
+function roguePackPrice(s){return roguePackPrices[rogue.foundations[s]];} 
+function rogueStat(s){return rogueSuitData[s].values[rogue.foundations[s]];}
+
+function rogueLog(m){const l=document.getElementById('rogueLog'),li=document.createElement('li');li.innerHTML=m;l.prepend(li);}
+
+// Focus toggle between Player & Boss health bars
+function setFocusHp(target) {
+    const bContainer = document.getElementById('bossHpContainer');
+    const pContainer = document.getElementById('playerHpContainer');
+    if (!bContainer || !pContainer) return;
+    if (target === 'boss') {
+        bContainer.classList.add('active-target');
+        pContainer.classList.remove('active-target');
+    } else if (target === 'player') {
+        pContainer.classList.add('active-target');
+        bContainer.classList.remove('active-target');
+    }
+}
+
+function updateRogueUI(){
+    document.getElementById('rCoins').innerText=Math.floor(rogue.coins).toLocaleString();
+    document.getElementById('rHp').innerText=`${Math.max(0,Math.ceil(rogue.hp)).toLocaleString()} / ${rogue.maxHp.toLocaleString()}`;
+    document.getElementById('rHand').innerText=`${rogue.hand} / 5`;
+    
+    for(const[s,id]of [['♥','Heart'],['♦','Diamond'],['♠','Spade'],['♣','Club']]){
+        const i=rogue.foundations[s],v=rogueStat(s);
+        document.getElementById(`f${id}Rank`).innerText=rogueFoundationRank(s);
+        document.getElementById(`f${id}Stat`).innerText=`${s==='♠'?v.toFixed(1)+'×':v+'%'}`;
+        document.getElementById(`f${id}Next`).innerText=i>=12?'MAXED':`Pack: ${roguePackPrice(s).toLocaleString()}`;
+    }
+    
+    // Guarantee Ticket is ALWAYS fixed at 500
+    const tp=500;
+    document.getElementById('buyTicketBtn').innerText=rogue.guarantee?'TICKET PURCHASED':`BUY TICKET — ${tp.toLocaleString()}`;
+    document.getElementById('buyTicketBtn').disabled=rogue.guarantee||rogue.coins<tp;
+    
+    for(const[s,id]of [['♥','buyHeart'],['♦','buyDiamond'],['♠','buySpade'],['♣','buyClub']]){
+        const b=document.getElementById(id),max=rogue.foundations[s]>=12;
+        b.innerText=max?`${s} MAXED`:`${s} ${roguePackPrice(s).toLocaleString()}`;
+        b.disabled=max||rogue.coins<roguePackPrice(s)||(rogue.selectedPack!==null&&rogue.selectedPack!==s);
+        b.classList.toggle('selected',rogue.selectedPack===s);
+    }
+    document.getElementById('buyPackBtn').disabled=!rogue.selectedPack||rogue.coins<roguePackPrice(rogue.selectedPack);
+}
+
+function startRogueRun(){
+    rogue={
+        active:true,
+        phase:'money',
+        hand:0,
+        coins:0,
+        hp:1000,
+        maxHp:1000,
+        boss:1,
+        bossHp:500,
+        bossMaxHp:500,
+        guarantee:false,
+        selectedPack:null,
+        evaluating:false,
+        foundations:{'♥':0,'♦':0,'♠':0,'♣':0},
         totalDamageDealt: 0,
         bossesBeat: 0,
         coinsEarned: 0
-      };
+    };
+    document.getElementById('bossPanel').classList.add('hidden');
+    document.getElementById('rogueShop').classList.add('hidden');
+    document.getElementById('rActionBtn').classList.remove('hidden');
+    document.getElementById('rActionBtn').disabled=false;
+    document.getElementById('rActionBtn').innerText='DEAL HAND';
+    document.getElementById('rActionBtn').onclick=rogueDealHand;
+    document.getElementById('rogueLog').innerHTML='<li><em>Run started. Build your foundations.</em></li>';
+    updateRogueUI();
+}
 
-      document.getElementById('endRunModal').classList.add('hidden');
-      setFocusHealthBar('boss');
-      startNewRogueTurn();
+function rogueCreateHand(){return shuffle(createDeck()).slice(0,7).sort((a,b)=>rankValues[a.rank]-rankValues[b.rank]);}
+
+function renderRogueHand(h){
+    const a=document.getElementById('rCardRow1'),b=document.getElementById('rCardRow2');
+    a.innerHTML='';b.innerHTML='';
+    h.forEach((c,i)=>{
+        const e=document.createElement('div');
+        e.className=`card ${suitColors[c.suit]==='red'?'red':''}`;
+        e.innerHTML=`<span class="card-top">${c.rank}</span><span class="card-center">${c.suit}</span><span class="card-bottom">${c.rank}</span>`;
+        (i<4?a:b).appendChild(e);
+    });
+}
+
+function rogueDealHand(){
+    if(rogue.evaluating||rogue.phase==='shop'||rogue.phase==='dead')return;
+    if(rogue.phase==='boss'&&rogue.hand>=5)return;
+    rogue.evaluating=true;
+    document.getElementById('rActionBtn').disabled=true;
+    
+    const h=rogueCreateHand(),score=evaluateHandSmooth(h,{silent:true});
+    renderRogueHand(h);
+    document.getElementById('rScore').innerText=score.toLocaleString();
+    
+    if(rogue.phase==='money'){
+        const earned=Math.floor(score*rogueStat('♦')/100);
+        rogue.coins+=earned;
+        rogue.coinsEarned+=earned;
+        rogue.hand++;
+        rogueLog(`Money hand ${rogue.hand}: <strong>+${earned.toLocaleString()} coins</strong> from ${score.toLocaleString()} points.`);
+        setTimeout(()=>{
+            rogue.evaluating=false;
+            if(rogue.hand>=5)openRogueShop();
+            else document.getElementById('rActionBtn').disabled=false;
+            updateRogueUI();
+        },300);
+    }else{
+        // Player Attack Step -> Highlight Boss Health
+        setFocusHp('boss');
+        rogue.hand++;
+        const dmg=Math.floor(score*rogueStat('♠'));
+        rogue.bossHp=Math.max(0,rogue.bossHp-dmg);
+        rogue.totalDamageDealt += dmg;
+        updateBossUI();
+        
+        rogueLog(`Player Attack: dealt <strong>${dmg.toLocaleString()}</strong> damage to Boss!`);
+        
+        if(rogue.bossHp<=0){
+            setTimeout(()=>{
+                rogue.evaluating=false;
+                defeatBoss();
+                updateRogueUI();
+            }, 500);
+            return;
+        }
+
+        // Boss Counter-Attack Step -> Focus Player Health
+        setTimeout(()=>{
+            setFocusHp('player');
+            const bossScore=evaluateHandSmooth(rogueCreateHand(),{silent:true});
+            const bossDmg=Math.floor(bossScore*(1+(rogue.boss-1)*.05));
+            rogue.hp=Math.max(0,rogue.hp-bossDmg);
+            rogueLog(`Boss Attack: dealt <strong>${bossDmg.toLocaleString()}</strong> damage to Player!`);
+            updateBossUI();
+
+            setTimeout(()=>{
+                rogue.evaluating=false;
+                if(rogue.hp<=0)endRogueRun();
+                else if(rogue.hand>=5)finishBossUnbeaten();
+                else document.getElementById('rActionBtn').disabled=false;
+                updateRogueUI();
+            }, 450);
+        }, 650);
     }
+}
 
-    // Initial load
-    dealClassicHand();
-  </script>
+function openRogueShop(){
+    rogue.phase='shop';
+    rogue.guarantee=false;
+    rogue.selectedPack=null;
+    document.getElementById('rogueShop').classList.remove('hidden');
+    document.getElementById('rActionBtn').classList.add('hidden');
+    rogueLog('<strong>Shop opened.</strong> You may buy one ticket and one pack.');
+    updateRogueUI();
+}
+
+function selectRoguePack(s){
+    if(rogue.foundations[s]>=12)return;
+    rogue.selectedPack=s;
+    updateRogueUI();
+}
+
+function buyGuaranteeTicket(){
+    if(rogue.guarantee)return;
+    const p=500; // Fixed ticket cost
+    if(rogue.coins<p)return;
+    rogue.coins-=p;
+    rogue.guarantee=true;
+    rogueLog(`Bought a <strong>Pack Guarantee Ticket</strong> for ${p.toLocaleString()} coins.`);
+    updateRogueUI();
+}
+
+function skipRogueShop(){
+    rogue.phase='boss';
+    rogue.hand=0;
+    rogue.guarantee=false;
+    rogue.selectedPack=null;
+    document.getElementById('rogueShop').classList.add('hidden');
+    document.getElementById('rActionBtn').classList.remove('hidden');
+    document.getElementById('rActionBtn').disabled=false;
+    setupBoss();
+    updateRogueUI();
+}
+
+function buyRoguePack(){
+    const s=rogue.selectedPack;
+    if(!s||rogue.foundations[s]>=12)return;
+    const p=roguePackPrice(s);
+    if(rogue.coins<p)return;
+    rogue.coins-=p;
+    const guaranteed=rogue.guarantee,success=guaranteed||Math.random()*100<rogueStat('♣');
+    rogueLog(`${s} Pack opened: ${success?'<strong>SUCCESS</strong>':'<strong>FAILED</strong>'}${guaranteed?' (guaranteed)':''}.`);
+    if(success){
+        rogue.foundations[s]++;
+        rogueLog(`${s} foundation advanced to <strong>${rogueFoundationRank(s)}</strong>.`);
+    }
+    rogue.phase='boss';
+    rogue.hand=0;
+    rogue.guarantee=false;
+    rogue.selectedPack=null;
+    document.getElementById('rogueShop').classList.add('hidden');
+    document.getElementById('rActionBtn').classList.remove('hidden');
+    document.getElementById('rActionBtn').disabled=false;
+    setupBoss();
+    updateRogueUI();
+}
+
+function setupBoss(){
+    rogue.bossMaxHp=500+(rogue.boss-1)*50;
+    rogue.bossHp=rogue.bossMaxHp;
+    document.getElementById('bossPanel').classList.remove('hidden');
+    document.getElementById('bossResult').innerText='';
+    document.getElementById('bossCards').innerHTML=Array.from({length:7},()=>'<div class="card facedown"><span class="card-top">?</span><span class="card-center">🂠</span><span class="card-bottom">?</span></div>').join('');
+    setFocusHp('boss');
+    updateBossUI();
+}
+
+function updateBossUI(){
+    document.getElementById('bossName').innerText=`Boss ${rogue.boss} — ${(1+(rogue.boss-1)*.05).toFixed(2)}×`;
+    document.getElementById('bossHpText').innerText=`${rogue.bossHp.toLocaleString()} / ${rogue.bossMaxHp.toLocaleString()} HP`;
+    document.getElementById('bossHpFill').style.width=`${Math.max(0,rogue.bossHp/rogue.bossMaxHp*100)}%`;
+    
+    document.getElementById('playerHpText').innerText=`${Math.max(0,Math.ceil(rogue.hp)).toLocaleString()} / ${rogue.maxHp.toLocaleString()} HP`;
+    document.getElementById('playerHpFill').style.width=`${Math.max(0,(rogue.hp/rogue.maxHp)*100)}%`;
+}
+
+function defeatBoss(){
+    rogue.bossesBeat++;
+    const heal=Math.floor(rogue.maxHp*rogueStat('♥')/100);
+    rogue.hp=Math.min(rogue.maxHp,rogue.hp+heal);
+    rogueLog(`<strong>Boss defeated!</strong> You healed ${heal.toLocaleString()} HP and earned 4 packs — one of each suit.`);
+    rogue.boss++;
+    rogue.phase='money';
+    rogue.hand=0;
+    document.getElementById('bossPanel').classList.add('hidden');
+    document.getElementById('rActionBtn').disabled=false;
+    document.getElementById('rActionBtn').classList.remove('hidden');
+    document.getElementById('rEarned').innerText='0';
+    updateRogueUI();
+}
+
+function finishBossUnbeaten(){
+    rogueLog('<strong>Boss survived.</strong> No packs and no healing. The run continues.');
+    rogue.boss++;
+    rogue.phase='money';
+    rogue.hand=0;
+    document.getElementById('bossPanel').classList.add('hidden');
+    document.getElementById('rActionBtn').disabled=false;
+    document.getElementById('rActionBtn').classList.remove('hidden');
+    document.getElementById('rEarned').innerText='0';
+    updateRogueUI();
+}
+
+function endRogueRun(){
+    rogue.phase='dead';
+    rogue.hp=0;
+    rogue.evaluating=false;
+    const b=document.getElementById('rActionBtn');
+    b.disabled=false;
+    b.classList.remove('hidden');
+    b.innerText='NEW RUN';
+    b.onclick=startRogueRun;
+    rogueLog(`<strong>RUN OVER.</strong> You reached Boss ${rogue.boss}.`);
+    updateRogueUI();
+    
+    // Pop up stats modal at end of run
+    document.getElementById('statBossesBeat').innerText = rogue.bossesBeat;
+    document.getElementById('statTotalDamage').innerText = rogue.totalDamageDealt.toLocaleString();
+    document.getElementById('statTotalCoins').innerText = rogue.coinsEarned.toLocaleString();
+    document.getElementById('rogueStatsModalOverlay').classList.add('active');
+}
+
+function closeRogueStatsModal() {
+    document.getElementById('rogueStatsModalOverlay').classList.remove('active');
+    startRogueRun();
+}
+
+</script>
+
 </body>
 </html>
